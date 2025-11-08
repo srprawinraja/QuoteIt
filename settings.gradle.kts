@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Small Talk"
+rootProject.name = "QuoteIt"
 include(":app")

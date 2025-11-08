@@ -4,12 +4,18 @@ import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,39 +41,62 @@ fun HomeScreen(quoteViewModel: QuoteViewModel) {
     Column (
         modifier = Modifier.
         fillMaxSize().
-        background(color = Color(0xFF10161B)),
-        horizontalAlignment = Alignment.CenterHorizontally
+        background(color = Color(0xFF10161B))
+            .padding(30.dp),
     ){
-        Spacer(modifier = Modifier.height(60.dp))
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "QuoteIt",
+                    color = Color.White,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Image(
+                    painter = painterResource(R.drawable.app_icon),
+                    contentDescription = "top bar logo"
+                )
 
-        Row (
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Text(
-                "QuoteIt",
-                color = Color.White,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Image(painter = painterResource(R.drawable.app_icon), contentDescription = "top bar logo")
+            }
+            Spacer(modifier = Modifier.height(50.dp))
 
-        }
-        Spacer(modifier = Modifier.height(50.dp))
-        Column (
-            modifier = Modifier.padding(30.dp)
-                .fillMaxSize(),
-        ){
             Text(
-                text = quote,
+                text = "wjfndsjkfjdsfnjkdsnfjksnfjkdsnfjksdnjfkdsnjkfsk",
                 fontSize = 30.sp,
                 color = Color.White,
-                textAlign = TextAlign.Justify,
                 fontFamily = FontFamily.Serif,
-                lineHeight = 35.sp
+                lineHeight = 35.sp,
+                modifier = Modifier.fillMaxWidth()
             )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Spacer(modifier = Modifier.height(30.dp))
             Text("PRAWIN", color = Color.White, fontSize = 25.sp)
             Text("fact", color=Color(0xFFDDDDDD), fontSize = 20.sp)
+        }
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ){
+            Box(
+                modifier = Modifier
+                    .size(40.dp) // diameter
+                    .background(color = Color(0xFF293540), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(painterResource(R.drawable.share_icon), contentDescription = "share button",
+                    modifier = Modifier.width(25.dp).height(25.dp)
+                        .padding(end = 5.dp))
+            }
         }
     }
 }
