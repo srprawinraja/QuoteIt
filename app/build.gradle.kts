@@ -2,14 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
 }
 
 android {
-    namespace = "com.example.smalltalk"
+    namespace = "com.example.quoteit"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.smalltalk"
+        applicationId = "com.example.quoteit"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -41,6 +42,11 @@ android {
 
 dependencies {
     val lifecycle_version = "2.6.2" // Check for the latest stable version
+    val  nav_version = "2.9.6"
+
+    // Jetpack Compose Integration
+    implementation("dev.shreyaspatil:capturable:2.1.0")
+    implementation( "androidx.navigation:navigation-compose:$nav_version")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
