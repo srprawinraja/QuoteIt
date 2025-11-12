@@ -1,7 +1,9 @@
 package com.example.quoteit.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,15 +12,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,27 +38,20 @@ import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.data.Quote
 import com.example.quoteit.data.TagsItem
+import com.example.quoteit.ui.data.UiTag
 import com.example.quoteit.ui.theme.ShowQuote
 import com.example.quoteit.viewModels.TagsViewModel
 
-
-data class Tag(val id: Int, val name: String, val img: Int)
-val card1:Tag = Tag(1, "power", R.drawable.love_icon)
-val card2:Tag = Tag(2, "power", R.drawable.motivational_icon)
-
-val tags = listOf(
-    card1,
-    card2
-)
 @Composable
 fun ListTagScreen(tagsViewModel: TagsViewModel){
-    val uiData: NetworkResponse<List<TagsItem>> = tagsViewModel.uiState.collectAsState().value
+    val uiData: NetworkResponse<List<UiTag>> = tagsViewModel.uiState.collectAsState().value
 
     Column (
         modifier = Modifier.fillMaxSize()
             .background(color = Color(0xFF10161B))
+            .padding(10.dp)
     ){
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         Row (
             modifier = Modifier.fillMaxWidth(),
@@ -65,10 +66,11 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
             )
 
         }
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
         when (val result = uiData) {
             is NetworkResponse.Success -> {
-                ShowListOfTags(uiData.data)
+                ShowListOfTags(tagsViewModel, result.data)
             }
 
             is NetworkResponse.LoadingQuote -> {
@@ -81,15 +83,16 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
                     Image(modifier = Modifier.height(50.dp).width(50.dp), painter = painterResource(R.drawable.error_icon), contentDescription = "error")
                 }
             }
-
             else -> {
 
             }
         }
+        Spacer(modifier = Modifier.height(50.dp))
+
     }
 }
 @Composable
-fun ShowListOfTags(tags: List<TagsItem>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<UiTag>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -99,22 +102,33 @@ fun ShowListOfTags(tags: List<TagsItem>){
         items(
             count=tags.size,
         ) { index ->
-            Row(){
+            val marked: MutableState<Boolean> = remember { mutableStateOf(tags[index].marked) }
                 Card (
-                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
+                        marked.value=!marked.value
+                        tagsViewModel.changeMarked(tags[index].id, marked.value)
+                    }),
                     colors = CardColors(
                         containerColor = Color(0xFF293540),
                         contentColor = Color.White,
                         disabledContainerColor =Color.Red,
-                        disabledContentColor = Color.Red
-                    ),
-
+                        disabledContentColor = Color.Red,
+                    )
                     ){
                     Column (
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
+                        if(marked.value){
+                            Row (
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ){
+                                Image(modifier = Modifier.wrapContentSize().padding(end = 10.dp), painter = painterResource(R.drawable.tick_icon), contentDescription = "")
+                            }
+                        }
+
                         Image(
                             modifier = Modifier.width(50.dp).height(50.dp),
                             painter = painterResource(tags[index].img),
@@ -123,7 +137,7 @@ fun ShowListOfTags(tags: List<TagsItem>){
                         Text(text = tags[index].name, fontSize = 20.sp)
                     }
                 }
-            }
+
         }
     }
 }

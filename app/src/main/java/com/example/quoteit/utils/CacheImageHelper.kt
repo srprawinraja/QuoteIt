@@ -1,9 +1,11 @@
 package com.example.quoteit.utils
 
+import android.nfc.Tag
+import android.util.Log
 import com.example.quoteit.R
 import com.example.quoteit.data.TagsItem
 
-class CacheImageHelper {
+object CacheImageHelper {
     val categoryIcons: Map<String, Int> = mapOf(
         "motivational" to R.drawable.motivational_icon,
         "inspirational" to R.drawable.inspirational_icon,
@@ -27,17 +29,20 @@ class CacheImageHelper {
         "technology" to R.drawable.technology_icon
     )
     fun getCachedImageResource(tag: String):Int{
-        return categoryIcons.get(tag) ?: R.drawable.error_icon
+        if(!containsCachedImage(tag)){
+            return R.drawable.error_icon
+        }
+        return categoryIcons.getValue(tag.lowercase())
     }
     fun containsCachedImage(tag: String): Boolean{
-        return categoryIcons.containsKey(tag)
+        return categoryIcons.containsKey(tag.lowercase())
     }
-    fun filterOutInvalidTags(tags: ArrayList<TagsItem>): List<TagsItem>{
-        val filteredOutTags = tags.filter {  tag-> containsCachedImage(tag.name.lowercase()) }
-        filteredOutTags.forEach { tag ->{
-                tag.img = getCachedImageResource(tag.name)
-            }
+    fun filterOutInvalidTags(tags: List<TagsItem>): List<TagsItem>{
+        val filteredOutTags = tags.filter {  tag-> containsCachedImage(tag.name) }
+        filteredOutTags.map { tag ->
+            tag.img = getCachedImageResource(tag.name)
         }
+
         return filteredOutTags
     }
 }
