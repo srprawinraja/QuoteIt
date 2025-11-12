@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27"
 
 }
 
@@ -31,6 +32,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -43,8 +45,10 @@ android {
 dependencies {
     val lifecycle_version = "2.6.2" // Check for the latest stable version
     val  nav_version = "2.9.6"
-
-    // Jetpack Compose Integration
+    val room_version = "2.6.1"
+    ksp( "androidx.room:room-compiler:$room_version" ) // replaces kapt
+    implementation( "androidx.room:room-runtime:$room_version")  // core Room
+    implementation( "androidx.room:room-ktx:$room_version")      // coroutine support
     implementation("dev.shreyaspatil:capturable:2.1.0")
     implementation( "androidx.navigation:navigation-compose:$nav_version")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")

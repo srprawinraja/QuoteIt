@@ -3,10 +3,7 @@ package com.example.quoteit.ui.theme
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,31 +14,42 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.data.Quote
+import com.example.quoteit.ui.data.UiTag
 import com.example.quoteit.viewModels.QuoteViewModel
+import com.example.quoteit.viewModels.TagsViewModel
 
 @Composable
 fun HomeScreen(navController: NavHostController, quoteViewModel: QuoteViewModel) {
     val uiData: NetworkResponse<Quote> =  quoteViewModel.uiState.collectAsState().value
+    //val tagUiData: NetworkResponse<List<UiTag>> = tagsViewModel.uiState.collectAsState().value
 
+    val lists = mutableListOf<String>(
+        "Inspiration",
+        "Motivational",
+        "god",
+        "angry"
+    )
     Column (
         modifier = Modifier.
         fillMaxSize().
@@ -64,8 +72,34 @@ fun HomeScreen(navController: NavHostController, quoteViewModel: QuoteViewModel)
             Image(painter = painterResource(R.drawable.app_icon), contentDescription = "top bar logo")
 
         }
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(150.dp))
 
+            LazyRow(
+                modifier = Modifier
+                    .wrapContentSize(),
+            ) {
+                items(lists.size) { index ->
+                    Button(
+                        onClick = { },
+                        border = BorderStroke(1.dp, Color.Cyan),
+                        colors = ButtonColors(
+                            containerColor = Color(0xFF10161B),
+                            contentColor = Color.White,
+                            disabledContentColor = Color.White,
+                            disabledContainerColor = Color(0xFF10161B)
+                        )
+                    ) {
+                        Text(
+                            modifier = Modifier.wrapContentSize(),
+                            text = lists.get(index),
+                            color = Color(0xFFDDDDDD),
+                            fontSize = 15.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+            }
+        Spacer(modifier = Modifier.height(20.dp))
         when (val result = uiData) {
             is NetworkResponse.Success -> {
                 ShowQuote(navController, result.data.content, result.data.author, result.data.tags[0])
@@ -121,19 +155,20 @@ fun MiddleRowButtons(navController: NavHostController, quote: String){
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ){
-        Box(
+        IconButton(
+            onClick = { navController.navigate("Share/$quote") },
             modifier = Modifier
-                .size(40.dp) // diameter
+                .size(40.dp)
                 .background(color = Color(0xFF293540), shape = CircleShape)
-                .clickable{
-                    navController.navigate("Share/$quote")
-                },
-            contentAlignment = Alignment.Center
         ) {
-            Image(painterResource(R.drawable.share_icon), contentDescription = "share button",
-                modifier = Modifier.width(30.dp).height(30.dp)
-                    .padding(end =5.dp))
+            Icon(
+                painter = painterResource(R.drawable.share_icon),
+                contentDescription = "Share",
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
+            )
         }
+
     }
 }
 
