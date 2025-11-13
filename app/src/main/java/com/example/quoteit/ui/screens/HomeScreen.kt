@@ -3,6 +3,7 @@ package com.example.quoteit.ui.theme
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,14 +40,14 @@ import androidx.navigation.NavHostController
 import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.data.Quote
-import com.example.quoteit.ui.data.UiTag
-import com.example.quoteit.viewModels.QuoteViewModel
-import com.example.quoteit.viewModels.TagsViewModel
+import com.example.quoteit.db.tag.TagEntity
+import com.example.quoteit.ui.screens.ShowListOfTags
+import com.example.quoteit.viewModels.HomeViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController, quoteViewModel: QuoteViewModel) {
-    val uiData: NetworkResponse<Quote> =  quoteViewModel.uiState.collectAsState().value
-    //val tagUiData: NetworkResponse<List<UiTag>> = tagsViewModel.uiState.collectAsState().value
+fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
+    val uiData: NetworkResponse<Quote> =  homeViewModel.uiState.collectAsState().value
+    val uiTagData by homeViewModel.tagsFlow.collectAsState()
 
     val lists = mutableListOf<String>(
         "Inspiration",
@@ -74,31 +79,53 @@ fun HomeScreen(navController: NavHostController, quoteViewModel: QuoteViewModel)
         }
         Spacer(modifier = Modifier.height(150.dp))
 
-            LazyRow(
-                modifier = Modifier
-                    .wrapContentSize(),
-            ) {
-                items(lists.size) { index ->
-                    Button(
-                        onClick = { },
-                        border = BorderStroke(1.dp, Color.Cyan),
-                        colors = ButtonColors(
-                            containerColor = Color(0xFF10161B),
-                            contentColor = Color.White,
-                            disabledContentColor = Color.White,
-                            disabledContainerColor = Color(0xFF10161B)
-                        )
-                    ) {
-                        Text(
-                            modifier = Modifier.wrapContentSize(),
-                            text = lists.get(index),
-                            color = Color(0xFFDDDDDD),
-                            fontSize = 15.sp
-                        )
+                LazyRow(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                ) {
+                    items(uiTagData.size) { index ->
+                        val marked: MutableState<Boolean> =
+                            remember { mutableStateOf(uiTagData.get(index).tagMarked) }
+                        if (marked.value) {
+                            if (!uiTagData.get(index).isImg) {
+                                Button(
+                                    onClick = {
+                                        if (uiTagData.get(index).tagCached) {
+                                            homeViewModel.changeTodayQuote()
+                                        } else homeViewModel.changeSelectedQuote(uiTagData.get(index).tagSlug)
+                                    },
+                                    border = BorderStroke(1.dp, Color.Cyan),
+                                    colors = ButtonColors(
+                                        containerColor = Color(0xFF10161B),
+                                        contentColor = Color.White,
+                                        disabledContentColor = Color.White,
+                                        disabledContainerColor = Color(0xFF10161B)
+                                    )
+                                ) {
+                                    Text(
+                                        modifier = Modifier.wrapContentSize(),
+                                        text = uiTagData.get(index).tagName,
+                                        color = Color(0xFFDDDDDD),
+                                        fontSize = 15.sp
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    painter = painterResource(R.drawable.add_icon),
+                                    contentDescription = "add",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(45.dp).clickable(onClick = {
+                                        navController.navigate("Tags")
+                                    })
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                        }
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
                 }
-            }
+
+
+
         Spacer(modifier = Modifier.height(20.dp))
         when (val result = uiData) {
             is NetworkResponse.Success -> {
