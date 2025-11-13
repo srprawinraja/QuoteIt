@@ -41,7 +41,6 @@ class QuoteShowViewModel(val contextHelper: ContextHelper) : ViewModel() {
                 val capturedBitmap: Bitmap = bitmap.asAndroidBitmap()
                 shareBitmap(capturedBitmap)
             } catch (error: CancellationException) {
-                // Error occurred, do something.
                 Log.i("get data method throws error", error.toString())
             }
         }

@@ -38,11 +38,11 @@ object CacheImageHelper {
         return categoryIcons.containsKey(tag.lowercase())
     }
     fun filterOutInvalidTags(tags: List<TagsItem>): List<TagsItem>{
+
         val filteredOutTags = tags.filter {  tag-> containsCachedImage(tag.name) }
         filteredOutTags.map { tag ->
             tag.img = getCachedImageResource(tag.name)
         }
-
         return filteredOutTags
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,13 +39,15 @@ import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.data.Quote
 import com.example.quoteit.data.TagsItem
-import com.example.quoteit.ui.data.UiTag
+import com.example.quoteit.db.tag.TagEntity
 import com.example.quoteit.ui.theme.ShowQuote
 import com.example.quoteit.viewModels.TagsViewModel
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun ListTagScreen(tagsViewModel: TagsViewModel){
-    val uiData: NetworkResponse<List<UiTag>> = tagsViewModel.uiState.collectAsState().value
+    val uiData by tagsViewModel.tagsFlow.collectAsState()
+
 
     Column (
         modifier = Modifier.fillMaxSize()
@@ -68,31 +71,16 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        when (val result = uiData) {
-            is NetworkResponse.Success -> {
-                ShowListOfTags(tagsViewModel, result.data)
-            }
+       ShowListOfTags(tagsViewModel, uiData)
 
-            is NetworkResponse.LoadingQuote -> {
-                CircularProgressIndicator()
-            }
-            is NetworkResponse.Error  -> {
-                Column (
-                    modifier = Modifier.fillMaxSize()
-                ){
-                    Image(modifier = Modifier.height(50.dp).width(50.dp), painter = painterResource(R.drawable.error_icon), contentDescription = "error")
-                }
-            }
-            else -> {
-
-            }
-        }
         Spacer(modifier = Modifier.height(50.dp))
 
     }
 }
 @Composable
-fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<UiTag>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
+    val filteredTags =  tags.filter { tag -> !tag.tagCached && !tag.isImg }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -100,44 +88,48 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<UiTag>){
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
-            count=tags.size,
+            count=filteredTags.size,
         ) { index ->
-            val marked: MutableState<Boolean> = remember { mutableStateOf(tags[index].marked) }
-                Card (
+                val marked: MutableState<Boolean> =
+                    remember { mutableStateOf(filteredTags[index].tagMarked) }
+                Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
-                        marked.value=!marked.value
-                        tagsViewModel.changeMarked(tags[index].id, marked.value)
+                        marked.value = !marked.value
+                        tagsViewModel.changeMarked(filteredTags[index].id, marked.value)
                     }),
                     colors = CardColors(
                         containerColor = Color(0xFF293540),
                         contentColor = Color.White,
-                        disabledContainerColor =Color.Red,
+                        disabledContainerColor = Color.Red,
                         disabledContentColor = Color.Red,
                     )
-                    ){
-                    Column (
+                ) {
+                    Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        if(marked.value){
-                            Row (
+                    ) {
+                        if (marked.value) {
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End
-                            ){
-                                Image(modifier = Modifier.wrapContentSize().padding(end = 10.dp), painter = painterResource(R.drawable.tick_icon), contentDescription = "")
+                            ) {
+                                Image(
+                                    modifier = Modifier.wrapContentSize().padding(end = 10.dp),
+                                    painter = painterResource(R.drawable.tick_icon),
+                                    contentDescription = ""
+                                )
                             }
                         }
-
                         Image(
                             modifier = Modifier.width(50.dp).height(50.dp),
-                            painter = painterResource(tags[index].img),
+                            painter = painterResource(filteredTags[index].tagImg),
                             contentDescription = "",
                         )
-                        Text(text = tags[index].name, fontSize = 20.sp)
+                        Text(text = filteredTags[index].tagName, fontSize = 20.sp)
                     }
-                }
 
+            }
         }
     }
 }
