@@ -1,14 +1,11 @@
 package com.example.quoteit.ui.theme
 
-import android.R.attr.content
-import android.R.id.content
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,104 +57,117 @@ fun HomeScreen(
         background(color = themeColors().background)
             .padding(30.dp),
     ){
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         Row (
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ){
+            Image(painter = painterResource(R.drawable.quote_left_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = -5.dp, y = -20.dp))
+
             Text(
                 "QuoteIt",
                 color = themeColors().text,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
-            Image(painter = painterResource(R.drawable.app_icon), contentDescription = "top bar logo")
+            Image(painter = painterResource(R.drawable.quote_right_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = 5.dp, y = -20.dp))
 
         }
-        Spacer(modifier = Modifier.height(150.dp))
-        val selectButtonIndex = remember { mutableStateOf(0) }
-                LazyRow(
-                    modifier = Modifier
-                        .wrapContentSize(),
-                ) {
-                    items(uiTagData.size) { index ->
-                        val marked: MutableState<Boolean> =
-                            remember { mutableStateOf(uiTagData.get(index).tagMarked) }
-                        if (marked.value) {
-                            if (!uiTagData.get(index).isImg) {
-                                Button(
-                                    onClick = {
-                                        selectButtonIndex.value=index
-                                        if (uiTagData.get(index).tagCached) {
-                                            homeViewModel.changeTodayQuote()
-                                        } else homeViewModel.changeSelectedQuote(uiTagData.get(index).tagSlug)
-                                    },
-                                    colors = ButtonColors(
-                                        containerColor = themeColors().background,
-                                        contentColor =  themeColors().text,
-                                        disabledContentColor = themeColors().text,
-                                        disabledContainerColor =  themeColors().background
-                                    ),
-                                    modifier = Modifier.then(
-                                        if(selectButtonIndex.value==index){
-                                                Modifier.border(
-                                                    border = BorderStroke(1.dp, themeColors().border),
-                                                    shape = CircleShape
-                                                )
-                                        }else Modifier
-                                    )
-                                ) {
-                                    Text(
-                                        modifier = Modifier.wrapContentSize(),
-                                        text = uiTagData.get(index).tagName,
-                                        color = themeColors().text,
-                                        fontSize = 15.sp
-                                    )
-                                }
-                            } else {
-                                Icon(
-                                    painter = painterResource(R.drawable.add_icon),
-                                    contentDescription = "add",
-                                    tint = themeColors().text,
-                                    modifier = Modifier.size(45.dp).clickable(onClick = {
-                                        navController.navigate("Tags")
-                                    })
+        Column (
+            modifier = Modifier.fillMaxSize().offset(y = (-150).dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
+            val selectButtonIndex = remember { mutableStateOf(0) }
+            LazyRow(
+                modifier = Modifier
+                    .wrapContentSize(),
+            ) {
+                items(uiTagData.size) { index ->
+                    val marked: MutableState<Boolean> =
+                        remember { mutableStateOf(uiTagData.get(index).tagMarked) }
+                    if (marked.value) {
+                        if (!uiTagData.get(index).isImg) {
+                            Button(
+                                onClick = {
+                                    selectButtonIndex.value = index
+                                    if (uiTagData.get(index).tagCached) {
+                                        homeViewModel.changeTodayQuote()
+                                    } else homeViewModel.changeSelectedQuote(uiTagData.get(index).tagSlug)
+                                },
+                                colors = ButtonColors(
+                                    containerColor = themeColors().background,
+                                    contentColor = themeColors().text,
+                                    disabledContentColor = themeColors().text,
+                                    disabledContainerColor = themeColors().background
+                                ),
+                                modifier = Modifier.then(
+                                    if (selectButtonIndex.value == index) {
+                                        Modifier.border(
+                                            border = BorderStroke(1.dp, themeColors().border),
+                                            shape = CircleShape
+                                        )
+                                    } else Modifier
+                                )
+                            ) {
+                                Text(
+                                    modifier = Modifier.wrapContentSize(),
+                                    text = uiTagData.get(index).tagName,
+                                    color = themeColors().text,
+                                    fontSize = 15.sp
                                 )
                             }
-                            Spacer(modifier = Modifier.width(10.dp))
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.add_icon),
+                                contentDescription = "add",
+                                tint = themeColors().text,
+                                modifier = Modifier.size(45.dp).clickable(onClick = {
+                                    navController.navigate("Tags")
+                                })
+                            )
                         }
+                        Spacer(modifier = Modifier.width(10.dp))
                     }
                 }
-
-
-
-        Spacer(modifier = Modifier.height(20.dp))
-        when (val result = uiData) {
-            is NetworkResponse.Success -> {
-                ShowQuote(navController, result.data.content, result.data.author, result.data.tags[0])
             }
 
-            is NetworkResponse.ErrorQuote  -> {
-                ShowQuote(navController, result.data.content, result.data.author, result.data.tags[0])
-            }
+            Spacer(modifier = Modifier.height(20.dp))
+            when (val result = uiData) {
+                is NetworkResponse.Success -> {
+                    ShowQuote(
+                        navController,
+                        result.data.content,
+                        result.data.author,
+                        result.data.tags[0]
+                    )
+                }
 
-            is NetworkResponse.LoadingQuote -> {
-                ShowQuote(navController, result.data.content, result.data.author, result.data.tags[0])
-            }
+                is NetworkResponse.ErrorQuote -> {
+                    ShowQuote(
+                        navController,
+                        result.data.content,
+                        result.data.author,
+                        result.data.tags[0]
+                    )
+                }
 
-            else -> {
+                is NetworkResponse.LoadingQuote -> {
+                    ShowQuote(
+                        navController,
+                        result.data.content,
+                        result.data.author,
+                        result.data.tags[0]
+                    )
+                }
 
+                else -> {
+
+                }
             }
         }
-        Spacer(modifier = Modifier.height(100.dp))
-        Row (
-            modifier = Modifier.fillMaxWidth().wrapContentSize(),
-        ){
 
-
-        }
     }
 }
 

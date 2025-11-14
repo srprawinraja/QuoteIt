@@ -19,7 +19,6 @@ import com.example.quoteit.utils.DateHelper
 import com.example.quoteit.utils.GsonHelper
 import com.example.quoteit.utils.NetworkHelper
 import com.example.quoteit.utils.SharedPreferenceHelper
-import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -29,8 +28,7 @@ class HomeViewModel(
     contextHelper: ContextHelper,
     val sharedPreferenceHelper: SharedPreferenceHelper,
     val gsonHelper: GsonHelper<Quote>,
-    val tagRepository: TagRepository,
-    val translator: Translator
+    val tagRepository: TagRepository
 ): ViewModel()  {
 
     val defaultErrorQuote =  Quote(

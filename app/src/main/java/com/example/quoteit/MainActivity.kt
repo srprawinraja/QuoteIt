@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                 val tagsViewModel: TagsViewModel by viewModels() {
                     QuoteServiceFactory(this)
                 }
-                AppNavigation(MaterialTheme, homeViewModel, quoteShowViewModel, tagsViewModel)
+                AppNavigation( homeViewModel, quoteShowViewModel, tagsViewModel)
             }
         }
 
@@ -53,7 +53,6 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun AppNavigation(
-    materialTheme: MaterialTheme,
     homeViewModel: HomeViewModel,
     quoteShowViewModel: QuoteShowViewModel,
     tagsViewModel: TagsViewModel
@@ -84,16 +83,16 @@ fun AppNavigation(
 @Composable
 fun HomeScreenPreview() {
 
-  /*HomeScreen(
+  HomeScreen(
       navController = NavHostController(LocalContext.current), HomeViewModel(
           ContextHelper(LocalContext.current),
           SharedPreferenceHelper(LocalContext.current),
           GsonHelper(),
           tagRepository = TagRepository(
               context = LocalContext.current
-          ),
+          )
       )
- )*/
+ )
   // QuoteShow("The fact that you aren't where you want to be should be enough motivation", QuoteShowViewModel(ContextHelper(LocalContext.current)))
     //ListTagScreen(TagsViewModel(TagDatabaseService(app), CacheImageHelper()))
     // class TagsViewModel (val tagDatabaseService: TagDatabaseService, val cacheImageHelper: CacheImageHelper): ViewModel() {
