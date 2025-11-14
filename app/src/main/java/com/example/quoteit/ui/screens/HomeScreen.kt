@@ -1,9 +1,14 @@
 package com.example.quoteit.ui.theme
 
+import android.R.attr.content
+import android.R.id.content
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -39,26 +43,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
-import com.example.quoteit.data.Quote
-import com.example.quoteit.db.tag.TagEntity
-import com.example.quoteit.ui.screens.ShowListOfTags
 import com.example.quoteit.viewModels.HomeViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
-    val uiData: NetworkResponse<Quote> =  homeViewModel.uiState.collectAsState().value
+fun HomeScreen(
+    navController: NavHostController,
+    homeViewModel: HomeViewModel
+) {
+    val uiData =  homeViewModel.uiState.collectAsState().value
     val uiTagData by homeViewModel.tagsFlow.collectAsState()
 
-    val lists = mutableListOf<String>(
-        "Inspiration",
-        "Motivational",
-        "god",
-        "angry"
-    )
     Column (
         modifier = Modifier.
         fillMaxSize().
-        background(color = Color(0xFF10161B))
+        background(color = themeColors().background)
             .padding(30.dp),
     ){
         Spacer(modifier = Modifier.height(20.dp))
@@ -70,7 +68,7 @@ fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
         ){
             Text(
                 "QuoteIt",
-                color = Color.White,
+                color = themeColors().text,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -78,7 +76,7 @@ fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
 
         }
         Spacer(modifier = Modifier.height(150.dp))
-
+        val selectButtonIndex = remember { mutableStateOf(0) }
                 LazyRow(
                     modifier = Modifier
                         .wrapContentSize(),
@@ -90,22 +88,30 @@ fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
                             if (!uiTagData.get(index).isImg) {
                                 Button(
                                     onClick = {
+                                        selectButtonIndex.value=index
                                         if (uiTagData.get(index).tagCached) {
                                             homeViewModel.changeTodayQuote()
                                         } else homeViewModel.changeSelectedQuote(uiTagData.get(index).tagSlug)
                                     },
-                                    border = BorderStroke(1.dp, Color.Cyan),
                                     colors = ButtonColors(
-                                        containerColor = Color(0xFF10161B),
-                                        contentColor = Color.White,
-                                        disabledContentColor = Color.White,
-                                        disabledContainerColor = Color(0xFF10161B)
+                                        containerColor = themeColors().background,
+                                        contentColor =  themeColors().text,
+                                        disabledContentColor = themeColors().text,
+                                        disabledContainerColor =  themeColors().background
+                                    ),
+                                    modifier = Modifier.then(
+                                        if(selectButtonIndex.value==index){
+                                                Modifier.border(
+                                                    border = BorderStroke(1.dp, themeColors().border),
+                                                    shape = CircleShape
+                                                )
+                                        }else Modifier
                                     )
                                 ) {
                                     Text(
                                         modifier = Modifier.wrapContentSize(),
                                         text = uiTagData.get(index).tagName,
-                                        color = Color(0xFFDDDDDD),
+                                        color = themeColors().text,
                                         fontSize = 15.sp
                                     )
                                 }
@@ -113,7 +119,7 @@ fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
                                 Icon(
                                     painter = painterResource(R.drawable.add_icon),
                                     contentDescription = "add",
-                                    tint = Color.White,
+                                    tint = themeColors().text,
                                     modifier = Modifier.size(45.dp).clickable(onClick = {
                                         navController.navigate("Tags")
                                     })
@@ -156,24 +162,24 @@ fun HomeScreen(navController: NavHostController, homeViewModel: HomeViewModel) {
 
 @Composable
 fun ShowQuote(navController: NavHostController, quote: String, author: String, tag: String){
+    Log.i("show", "show the quote "+quote)
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = quote,
             fontSize = 30.sp,
-            color = Color.White,
+            color = themeColors().text,
             fontFamily = FontFamily.Serif,
             lineHeight = 35.sp,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(25.dp))
-        Text(modifier= Modifier.wrapContentSize(), text=author.uppercase(), color = Color.White, fontSize = 20.sp)
-        Text(modifier= Modifier.wrapContentSize(), text=tag, color=Color(0xFFDDDDDD), fontSize = 15.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=author.uppercase(), color = themeColors().text, fontSize = 20.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=tag, color=themeColors().lightText, fontSize = 15.sp)
     }
     Spacer(modifier = Modifier.height(20.dp))
     MiddleRowButtons(navController, quote)
-
 }
 
 @Composable
@@ -186,12 +192,12 @@ fun MiddleRowButtons(navController: NavHostController, quote: String){
             onClick = { navController.navigate("Share/$quote") },
             modifier = Modifier
                 .size(40.dp)
-                .background(color = Color(0xFF293540), shape = CircleShape)
+                .background(color = themeColors().surface, shape = CircleShape)
         ) {
             Icon(
                 painter = painterResource(R.drawable.share_icon),
                 contentDescription = "Share",
-                tint = Color.White,
+                tint = themeColors().text,
                 modifier = Modifier.size(30.dp)
             )
         }
