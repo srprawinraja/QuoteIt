@@ -13,22 +13,25 @@ import com.example.quoteit.api.RetroFitInstance
 import com.example.quoteit.data.Quote
 import com.example.quoteit.data.TagsItem
 import com.example.quoteit.db.tag.TagRepository
-import com.example.quoteit.db.tag.TagEntity
 import com.example.quoteit.utils.CacheImageHelper
 import com.example.quoteit.utils.ContextHelper
 import com.example.quoteit.utils.DateHelper
 import com.example.quoteit.utils.GsonHelper
 import com.example.quoteit.utils.NetworkHelper
 import com.example.quoteit.utils.SharedPreferenceHelper
+import com.google.mlkit.nl.translate.Translator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
 
-class HomeViewModel(contextHelper: ContextHelper,
-                    val sharedPreferenceHelper: SharedPreferenceHelper,
-                    val gsonHelper: GsonHelper<Quote>,
-                    val tagRepository: TagRepository): ViewModel()  {
+class HomeViewModel(
+    contextHelper: ContextHelper,
+    val sharedPreferenceHelper: SharedPreferenceHelper,
+    val gsonHelper: GsonHelper<Quote>,
+    val tagRepository: TagRepository,
+    val translator: Translator
+): ViewModel()  {
 
     val defaultErrorQuote =  Quote(
         "1",
@@ -61,9 +64,14 @@ class HomeViewModel(contextHelper: ContextHelper,
         if(sharedPreferenceHelper.contains(todayDate)) {
             val json = sharedPreferenceHelper.getValue(todayDate)
             val data = gsonHelper.getObj(json, Quote::class.java)
+//            translator.translate(data.content)
+//                .addOnSuccessListener { translated ->
+//                    data.content = translated
+//                    _uiState.value = NetworkResponse.Success(data)
+//                }.addOnFailureListener {
+//                    _uiState.value = NetworkResponse.Success(data)
+//                }
             _uiState.value = NetworkResponse.Success(data)
-            Log.i("today",_uiState.value.toString())
-
         }
         else {
             if(networkHelper.isNetworkAvailable()) {
@@ -80,7 +88,6 @@ class HomeViewModel(contextHelper: ContextHelper,
                             _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }
                     } else {
-                        Log.e("error", response.message())
                         _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                     }
                 }
@@ -94,7 +101,7 @@ class HomeViewModel(contextHelper: ContextHelper,
     }
     fun fetchTagsAndStore(){
         viewModelScope.launch {
-            if(tagsFlow.value.isEmpty()){
+            if(tagRepository.getAllTag().isEmpty()){
                 val response: Response<ArrayList<TagsItem>> = quoteService.getAllTags()
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -107,7 +114,6 @@ class HomeViewModel(contextHelper: ContextHelper,
                 } else {
                     _uiState.value = NetworkResponse.Error(response.message())
                 }
-
             }
         }
     }
@@ -120,7 +126,15 @@ class HomeViewModel(contextHelper: ContextHelper,
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {
+//                            translator.translate(body.content)
+//                                .addOnSuccessListener { translated ->
+//                                    body.content = translated
+//                                    _uiState.value = NetworkResponse.Success(body)
+//                                }.addOnFailureListener {
+//                                    _uiState.value = NetworkResponse.Success(body)
+//                                }
                             _uiState.value = NetworkResponse.Success(body)
+
                         } else {
                             _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }

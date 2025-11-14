@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quoteit.R
+import com.example.quoteit.ui.theme.themeColors
 import com.example.quoteit.viewModels.QuoteShowViewModel
 import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -57,7 +58,6 @@ fun QuoteShow(quote: String, quoteShowViewModel: QuoteShowViewModel) {
     val captureController = rememberCaptureController()
     LaunchedEffect(captureController) {
         withFrameNanos {
-
             quoteShowViewModel.getData(captureController)
         }
     }
@@ -66,7 +66,7 @@ fun QuoteShow(quote: String, quoteShowViewModel: QuoteShowViewModel) {
         modifier = Modifier.wrapContentSize().capturable(captureController)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().background(color = Color.Black)
+            modifier = Modifier.fillMaxSize().background(color = themeColors().imgBackground)
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -75,7 +75,7 @@ fun QuoteShow(quote: String, quoteShowViewModel: QuoteShowViewModel) {
                 text = quote.uppercase(),
                 modifier = Modifier.width(150.dp).wrapContentSize(),
                 fontSize = 15.sp,
-                color = Color.White,
+                color = themeColors().text,
                 fontFamily = FontFamily.SansSerif,
                 lineHeight = 25.sp,
                 textAlign = TextAlign.Center

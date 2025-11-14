@@ -19,17 +19,11 @@ class TagRepository(context: Context) {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
             started = SharingStarted.Companion.Eagerly,
             initialValue = emptyList())
-    suspend fun insertTag(tagsItem : List<TagsItem>){
-        tagsItem.forEach { tagsItem->
-            tagDao.insert(
-                TagEntity(
-                tagName =  tagsItem.name,
-                tagSlug = tagsItem.slug,
-                tagImg = tagsItem.img,
-                )
-            )
-        }
+
+    suspend fun getAllTag(): List<TagEntity>{
+        return tagDao.getAllTags()
     }
+
     suspend fun insertAllTag(tagsItem : List<TagsItem>){
         tagDao.insert(
             TagEntity(

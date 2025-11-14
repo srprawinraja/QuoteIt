@@ -10,6 +10,8 @@ interface TagDao {
     @Query("SELECT * FROM tagentity")
     fun getAllTagsFlow(): Flow<List<TagEntity>>
 
+    @Query("SELECT * FROM tagentity")
+    suspend fun getAllTags(): List<TagEntity>
     @Insert
     suspend fun insert(vararg tag: TagEntity)
 

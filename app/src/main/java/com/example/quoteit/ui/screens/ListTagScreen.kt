@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,19 +28,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quoteit.R
-import com.example.quoteit.api.NetworkResponse
-import com.example.quoteit.data.Quote
-import com.example.quoteit.data.TagsItem
 import com.example.quoteit.db.tag.TagEntity
-import com.example.quoteit.ui.theme.ShowQuote
+import com.example.quoteit.ui.theme.themeColors
 import com.example.quoteit.viewModels.TagsViewModel
-import kotlinx.coroutines.flow.map
 
 @Composable
 fun ListTagScreen(tagsViewModel: TagsViewModel){
@@ -51,7 +44,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
 
     Column (
         modifier = Modifier.fillMaxSize()
-            .background(color = Color(0xFF10161B))
+            .background(color = themeColors().background)
             .padding(10.dp)
     ){
         Spacer(modifier = Modifier.height(40.dp))
@@ -63,7 +56,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
         ){
             Text(
                 "Tags",
-                color = Color.White,
+                color = themeColors().text,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -98,10 +91,10 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
                         tagsViewModel.changeMarked(filteredTags[index].id, marked.value)
                     }),
                     colors = CardColors(
-                        containerColor = Color(0xFF293540),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color.Red,
-                        disabledContentColor = Color.Red,
+                        containerColor = themeColors().surface,
+                        contentColor = themeColors().text,
+                        disabledContainerColor = themeColors().surface,
+                        disabledContentColor = themeColors().text,
                     )
                 ) {
                     Column(
