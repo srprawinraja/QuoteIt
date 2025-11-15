@@ -24,6 +24,7 @@ data class AppThemeData(
     val border: Color,
     val lightText: Color,
     val imgBackground: Color,
+    val lightBorderColor: Color
 )
 val DarkTheme = AppThemeData(
     background = DarkBlue100,
@@ -31,7 +32,8 @@ val DarkTheme = AppThemeData(
     text = White,
     border = Cyan,
     lightText = LightWhite,
-    imgBackground = Black100
+    imgBackground = Black100,
+    lightBorderColor = darkGrey
 )
 
 val LightTheme = AppThemeData(
@@ -40,23 +42,18 @@ val LightTheme = AppThemeData(
     text = Black100,
     border = Cyan,
     lightText = LightDark,
-    imgBackground = White
+    imgBackground = White,
+    lightBorderColor = LightGrey
 )
 val LocalAppTheme = staticCompositionLocalOf { LightTheme }
 
-//background = DarkBlue100,
-//surface = Blue100,
-//secondary = Black100,
-//onSecondary = White,
 
 @Composable
 fun QuoteItTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-
     val theme = if (darkTheme) DarkTheme else LightTheme
-
     CompositionLocalProvider(LocalAppTheme provides theme) { content() }
 }
 @Composable

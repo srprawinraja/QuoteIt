@@ -25,13 +25,6 @@ class TagRepository(context: Context) {
     }
 
     suspend fun insertAllTag(tagsItem : List<TagsItem>){
-        tagDao.insert(
-            TagEntity(
-                tagName = "Today",
-                tagCached = true,
-                tagMarked = true
-            )
-        )
         tagsItem.forEach { tagsItem->
             tagDao.insert(
                 TagEntity(
@@ -41,13 +34,6 @@ class TagRepository(context: Context) {
                 )
             )
         }
-        tagDao.insert(
-            TagEntity(
-                isImg = true,
-                tagImg = R.drawable.add_icon,
-                tagMarked = true
-            )
-        )
     }
 
 
