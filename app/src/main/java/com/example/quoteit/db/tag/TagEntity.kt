@@ -12,6 +12,4 @@ data class TagEntity(
     @ColumnInfo(name = "tag_slug") val tagSlug: String="",
     @ColumnInfo(name = "tag_img") val tagImg: Int= R.drawable.error_icon,
     @ColumnInfo(name = "tag_marked") val tagMarked: Boolean = false,
-    @ColumnInfo(name = "tag_cached") val tagCached: Boolean = false,
-    @ColumnInfo(name = "is_img") val isImg: Boolean = false
 )

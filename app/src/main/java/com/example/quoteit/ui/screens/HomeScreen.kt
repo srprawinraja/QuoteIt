@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -33,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -74,63 +77,85 @@ fun HomeScreen(
             Image(painter = painterResource(R.drawable.quote_right_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = 5.dp, y = -20.dp))
 
         }
-        Column (
-            modifier = Modifier.fillMaxSize().offset(y = (-150).dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            val selectButtonIndex = remember { mutableStateOf(0) }
-            LazyRow(
-                modifier = Modifier
-                    .wrapContentSize(),
-            ) {
-                items(uiTagData.size) { index ->
-                    val marked: MutableState<Boolean> =
-                        remember { mutableStateOf(uiTagData.get(index).tagMarked) }
-                    if (marked.value) {
-                        if (!uiTagData.get(index).isImg) {
-                            Button(
-                                onClick = {
-                                    selectButtonIndex.value = index
-                                    if (uiTagData.get(index).tagCached) {
-                                        homeViewModel.changeTodayQuote()
-                                    } else homeViewModel.changeSelectedQuote(uiTagData.get(index).tagSlug)
-                                },
-                                colors = ButtonColors(
-                                    containerColor = themeColors().background,
-                                    contentColor = themeColors().text,
-                                    disabledContentColor = themeColors().text,
-                                    disabledContainerColor = themeColors().background
-                                ),
-                                modifier = Modifier.then(
-                                    if (selectButtonIndex.value == index) {
-                                        Modifier.border(
-                                            border = BorderStroke(1.dp, themeColors().border),
-                                            shape = CircleShape
-                                        )
-                                    } else Modifier
+            Spacer(modifier = Modifier.height(80.dp))
+            val selectedId = remember { mutableStateOf(0) }
+            Row (
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Button(
+                    onClick = {
+                        selectedId.value = 0
+                        homeViewModel.changeTodayQuote()
+                    },
+                    colors = ButtonColors(
+                        containerColor = themeColors().background,
+                        contentColor = themeColors().text,
+                        disabledContentColor = themeColors().text,
+                        disabledContainerColor = themeColors().background
+                    ),
+                    modifier = Modifier.then(
+                        if (selectedId.value == 0) {
+                            Modifier.border(
+                                border = BorderStroke(1.dp, themeColors().border),
+                                shape = CircleShape
+                            )
+                        } else Modifier
+                    )
+                ) {
+                    Text(
+                        modifier = Modifier.wrapContentSize(),
+                        text = "Today",
+                        color = themeColors().text,
+                        fontSize = 15.sp
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                uiTagData.map { tag->
+                    val mark = remember{ mutableStateOf(tag.tagMarked)}
+                    if(mark.value){
+                        Button(
+                            onClick = {
+                                selectedId.value = tag.id
+                                homeViewModel.changeSelectedQuote(tag.tagSlug)
+                            },
+                            colors = ButtonColors(
+                                containerColor = themeColors().background,
+                                contentColor = themeColors().text,
+                                disabledContentColor = themeColors().text,
+                                disabledContainerColor = themeColors().background
+                            ),
+                            modifier = Modifier.then(
+                                if (selectedId.value == tag.id) {
+                                    Modifier.border(
+                                        border = BorderStroke(1.dp, themeColors().border),
+                                        shape = CircleShape
+                                    )// Color(0xFF2C2F36)
+                                } else  Modifier.border(
+                                    border = BorderStroke(1.dp, themeColors().lightBorderColor),
+                                    shape = CircleShape
                                 )
-                            ) {
-                                Text(
-                                    modifier = Modifier.wrapContentSize(),
-                                    text = uiTagData.get(index).tagName,
-                                    color = themeColors().text,
-                                    fontSize = 15.sp
-                                )
-                            }
-                        } else {
-                            Icon(
-                                painter = painterResource(R.drawable.add_icon),
-                                contentDescription = "add",
-                                tint = themeColors().text,
-                                modifier = Modifier.size(45.dp).clickable(onClick = {
-                                    navController.navigate("Tags")
-                                })
+                            )
+                        ) {
+                            Text(
+                                modifier = Modifier.wrapContentSize(),
+                                text = tag.tagName,
+                                color = themeColors().text,
+                                fontSize = 15.sp
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
+
                     }
                 }
+                Icon(
+                    painter = painterResource(R.drawable.add_icon),
+                    contentDescription = "add",
+                    tint = themeColors().text,
+                    modifier = Modifier.size(45.dp).clickable(onClick = {
+                        navController.navigate("Tags")
+                    })
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -166,7 +191,7 @@ fun HomeScreen(
 
                 }
             }
-        }
+
 
     }
 }
@@ -175,7 +200,7 @@ fun HomeScreen(
 fun ShowQuote(navController: NavHostController, quote: String, author: String, tag: String){
     Log.i("show", "show the quote "+quote)
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
             text = quote,

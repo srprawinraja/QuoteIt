@@ -1,6 +1,7 @@
 package com.example.quoteit.ui.screens
 
 import android.util.Log
+import android.widget.ProgressBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,8 +73,6 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
 }
 @Composable
 fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
-    val filteredTags =  tags.filter { tag -> !tag.tagCached && !tag.isImg }
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -81,14 +80,14 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
-            count=filteredTags.size,
+            count=tags.size,
         ) { index ->
                 val marked: MutableState<Boolean> =
-                    remember { mutableStateOf(filteredTags[index].tagMarked) }
+                    remember { mutableStateOf(tags[index].tagMarked) }
                 Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
                         marked.value = !marked.value
-                        tagsViewModel.changeMarked(filteredTags[index].id, marked.value)
+                        tagsViewModel.changeMarked(tags[index].id, marked.value)
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,
@@ -116,10 +115,10 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
                         }
                         Image(
                             modifier = Modifier.width(50.dp).height(50.dp),
-                            painter = painterResource(filteredTags[index].tagImg),
+                            painter = painterResource(tags[index].tagImg),
                             contentDescription = "",
                         )
-                        Text(text = filteredTags[index].tagName, fontSize = 20.sp)
+                        Text(text = tags[index].tagName, fontSize = 20.sp)
                     }
 
             }

@@ -8,7 +8,7 @@ import android.os.Build
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LifecycleObserver
 
-class NetworkHelper(private val contextHelper: ContextHelper, private val onNetworkAvailable: () -> Unit) {
+class NetworkHelper(private val contextHelper: ContextHelper, private var onNetworkAvailable: () -> Unit) {
     var isRegistered: Boolean=false
     private val connectivityManager = contextHelper.getContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 

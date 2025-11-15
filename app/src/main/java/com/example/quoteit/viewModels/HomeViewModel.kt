@@ -55,7 +55,6 @@ class HomeViewModel(
 
     init{
         changeTodayQuote()
-        fetchTagsAndStore()
     }
 
     fun changeTodayQuote() {
@@ -97,24 +96,7 @@ class HomeViewModel(
             }
         }
     }
-    fun fetchTagsAndStore(){
-        viewModelScope.launch {
-            if(tagRepository.getAllTag().isEmpty()){
-                val response: Response<ArrayList<TagsItem>> = quoteService.getAllTags()
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        val filteredOutTags = CacheImageHelper.filterOutInvalidTags(body)
-                        tagRepository.insertAllTag(filteredOutTags)
-                    } else {
-                        _uiState.value = NetworkResponse.Error("body is null")
-                    }
-                } else {
-                    _uiState.value = NetworkResponse.Error(response.message())
-                }
-            }
-        }
-    }
+
     fun changeSelectedQuote(tag: String){
         viewModelScope.launch {
             if(networkHelper.isNetworkAvailable()) {

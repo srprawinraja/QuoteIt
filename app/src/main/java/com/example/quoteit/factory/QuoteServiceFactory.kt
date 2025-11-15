@@ -7,6 +7,7 @@ import com.example.quoteit.data.Quote
 import com.example.quoteit.db.tag.TagRepository
 import com.example.quoteit.utils.ContextHelper
 import com.example.quoteit.utils.GsonHelper
+import com.example.quoteit.utils.NetworkHelper
 import com.example.quoteit.utils.SharedPreferenceHelper
 import com.example.quoteit.viewModels.QuoteShowViewModel
 import com.example.quoteit.viewModels.HomeViewModel
@@ -31,7 +32,7 @@ class QuoteServiceFactory( private val context: Context) : ViewModelProvider.Fac
             return QuoteShowViewModel(ContextHelper(context)) as T
         }  else if (modelClass.isAssignableFrom(TagsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TagsViewModel(TagRepository(context)) as T
+            return TagsViewModel(TagRepository(context), ContextHelper(context)) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class")
