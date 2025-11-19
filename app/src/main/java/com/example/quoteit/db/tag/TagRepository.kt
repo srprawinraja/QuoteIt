@@ -40,4 +40,7 @@ class TagRepository(context: Context) {
     suspend fun updateMarked(id: Int, marked: Boolean){
         tagDao.updateMarked(id,marked)
     }
+    suspend fun deleteTag(id: Int){
+        tagDao.deleteTag(id)
+    }
 }

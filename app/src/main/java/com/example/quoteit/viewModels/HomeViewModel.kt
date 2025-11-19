@@ -119,7 +119,7 @@ class HomeViewModel(
                             _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }
                     } else {
-                        Log.e("error", response.message())
+                        Log.e("error from change selected quote", response.message())
                         _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                     }
                 }
@@ -128,6 +128,16 @@ class HomeViewModel(
                     defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
                 )
                 networkHelper.startMonitoring()
+            }
+        }
+    }
+
+    fun deleteTag(id: Int){
+        viewModelScope.launch {
+            try {
+                tagRepository.deleteTag(id)
+            } catch (e: Exception){
+                Log.e("error from deleting  quote", e.message?:"null")
             }
         }
     }
