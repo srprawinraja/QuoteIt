@@ -63,7 +63,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(30.dp))
 
         Row (
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().wrapContentSize(),
             horizontalArrangement = Arrangement.Center,
         ){
             Image(painter = painterResource(R.drawable.quote_left_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = -5.dp, y = -20.dp))
@@ -83,6 +83,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                 verticalAlignment = Alignment.CenterVertically
             ){
+
                 Button(
                     onClick = {
                         selectedId.value = 0
@@ -100,7 +101,10 @@ fun HomeScreen(
                                 border = BorderStroke(1.dp, themeColors().border),
                                 shape = CircleShape
                             )
-                        } else Modifier
+                        } else  Modifier.border(
+                            border = BorderStroke(1.dp, themeColors().lightBorderColor),
+                            shape = CircleShape
+                        )
                     )
                 ) {
                     Text(
@@ -143,9 +147,19 @@ fun HomeScreen(
                                 color = themeColors().text,
                                 fontSize = 15.sp
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            if (selectedId.value == tag.id) {
+                                Icon(
+                                    modifier = Modifier.clickable(onClick = {
+                                        homeViewModel.deleteTag(tag.id)
+                                    }),
+                                    painter = painterResource(R.drawable.cancel_icon),
+                                    contentDescription = "cancel icon",
+                                    tint = themeColors().text
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
-
                     }
                 }
                 Icon(
