@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,15 +15,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.quoteit.db.tag.TagRepository
 import com.example.quoteit.factory.QuoteServiceFactory
 import com.example.quoteit.ui.screens.ListTagScreen
 import com.example.quoteit.ui.screens.QuoteShow
+import com.example.quoteit.ui.screens.SavedDetailScreen
+import com.example.quoteit.ui.screens.SavedScreen
 import com.example.quoteit.ui.theme.HomeScreen
 import com.example.quoteit.ui.theme.QuoteItTheme
-import com.example.quoteit.utils.ContextHelper
-import com.example.quoteit.utils.GsonHelper
-import com.example.quoteit.utils.SharedPreferenceHelper
 import com.example.quoteit.viewModels.QuoteShowViewModel
 import com.example.quoteit.viewModels.HomeViewModel
 import com.example.quoteit.viewModels.TagsViewModel
@@ -75,6 +72,9 @@ fun AppNavigation(
         composable("Tags"){
             ListTagScreen(tagsViewModel)
         }
+        composable("Saved"){
+            SavedScreen(navController)
+        }
     }
 }
 
@@ -83,16 +83,9 @@ fun AppNavigation(
 @Composable
 fun HomeScreenPreview() {
 
-  HomeScreen(
-      navController = NavHostController(LocalContext.current), HomeViewModel(
-          ContextHelper(LocalContext.current),
-          SharedPreferenceHelper(LocalContext.current),
-          GsonHelper(),
-          tagRepository = TagRepository(
-              context = LocalContext.current
-          )
-      )
- )
+ /* */
+    //SavedScreen(navController = NavHostController(LocalContext.current))
+    SavedDetailScreen(navController = NavHostController(LocalContext.current))
   // QuoteShow("The fact that you aren't where you want to be should be enough motivation", QuoteShowViewModel(ContextHelper(LocalContext.current)))
     //ListTagScreen(TagsViewModel(TagDatabaseService(app), CacheImageHelper()))
     // class TagsViewModel (val tagDatabaseService: TagDatabaseService, val cacheImageHelper: CacheImageHelper): ViewModel() {

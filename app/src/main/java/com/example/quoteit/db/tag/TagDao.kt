@@ -18,7 +18,5 @@ interface TagDao {
     @Query("UPDATE TagEntity SET tag_marked = :tagMarked WHERE id = :id")
     suspend fun updateMarked(id: Int, tagMarked: Boolean)
 
-    @Query("DELETE FROM TagEntity WHERE id = :id")
-    suspend fun deleteTag(id: Int)
 
 }

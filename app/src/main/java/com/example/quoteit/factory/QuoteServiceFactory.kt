@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.quoteit.data.Quote
+import com.example.quoteit.db.saved.SavedQuoteRepository
 import com.example.quoteit.db.tag.TagRepository
 import com.example.quoteit.utils.ContextHelper
 import com.example.quoteit.utils.GsonHelper
@@ -25,8 +26,11 @@ class QuoteServiceFactory( private val context: Context) : ViewModelProvider.Fac
 
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(ContextHelper(context), SharedPreferenceHelper(context), GsonHelper<Quote>(),
-                TagRepository(context)) as T
+            return HomeViewModel(
+                ContextHelper(context), SharedPreferenceHelper(context), GsonHelper<Quote>(),
+                TagRepository(context),
+                savedQuoteRepository = SavedQuoteRepository(context)
+            ) as T
         } else if (modelClass.isAssignableFrom(QuoteShowViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return QuoteShowViewModel(ContextHelper(context)) as T
