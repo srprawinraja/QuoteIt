@@ -11,9 +11,9 @@ import com.example.quoteit.LOADING_MESSAGE
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.api.RetroFitInstance
 import com.example.quoteit.data.Quote
-import com.example.quoteit.data.TagsItem
+import com.example.quoteit.db.saved.SavedQuoteEntity
+import com.example.quoteit.db.saved.SavedQuoteRepository
 import com.example.quoteit.db.tag.TagRepository
-import com.example.quoteit.utils.CacheImageHelper
 import com.example.quoteit.utils.ContextHelper
 import com.example.quoteit.utils.DateHelper
 import com.example.quoteit.utils.GsonHelper
@@ -28,7 +28,8 @@ class HomeViewModel(
     contextHelper: ContextHelper,
     val sharedPreferenceHelper: SharedPreferenceHelper,
     val gsonHelper: GsonHelper<Quote>,
-    val tagRepository: TagRepository
+    val tagRepository: TagRepository,
+    val savedQuoteRepository: SavedQuoteRepository
 ): ViewModel()  {
 
     val defaultErrorQuote =  Quote(
@@ -131,16 +132,31 @@ class HomeViewModel(
             }
         }
     }
-
-    fun deleteTag(id: Int){
+    fun changeMarked(id: Int, marked: Boolean){
         viewModelScope.launch {
-            try {
-                tagRepository.deleteTag(id)
-            } catch (e: Exception){
-                Log.e("error from deleting  quote", e.message?:"null")
-            }
+            tagRepository.updateMarked(id, marked)
         }
     }
+    fun saveQuote(
+        id: String,
+        quote: String,
+        author: String,
+        tag: String
+    ){
+        viewModelScope.launch {
+            savedQuoteRepository.saveQuote(SavedQuoteEntity(
+                savedQuote = quote,
+                saveQuoteId = id,
+                savedAuthorQuote = author,
+                savedTagName = tag,
+            ))
+            Log.i("display all saved quotes", savedQuoteRepository.getAllSavedQuote().toString())
+        }
+    }
+    fun isQuoteExist(){
+
+    }
+
 }
 
 

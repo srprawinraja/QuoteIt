@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -28,14 +27,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
+import com.example.quoteit.data.Quote
 import com.example.quoteit.viewModels.HomeViewModel
 
 @Composable
@@ -151,7 +149,7 @@ fun HomeScreen(
                             if (selectedId.value == tag.id) {
                                 Icon(
                                     modifier = Modifier.clickable(onClick = {
-                                        homeViewModel.deleteTag(tag.id)
+                                        homeViewModel.changeMarked(tag.id, false)
                                     }),
                                     painter = painterResource(R.drawable.cancel_icon),
                                     contentDescription = "cancel icon",
@@ -177,6 +175,8 @@ fun HomeScreen(
                 is NetworkResponse.Success -> {
                     ShowQuote(
                         navController,
+                        homeViewModel,
+                        uiData,
                         result.data.content,
                         result.data.author,
                         result.data.tags[0]
@@ -186,6 +186,8 @@ fun HomeScreen(
                 is NetworkResponse.ErrorQuote -> {
                     ShowQuote(
                         navController,
+                        homeViewModel,
+                        null,
                         result.data.content,
                         result.data.author,
                         result.data.tags[0]
@@ -195,6 +197,8 @@ fun HomeScreen(
                 is NetworkResponse.LoadingQuote -> {
                     ShowQuote(
                         navController,
+                        homeViewModel,
+                        null,
                         result.data.content,
                         result.data.author,
                         result.data.tags[0]
@@ -211,8 +215,14 @@ fun HomeScreen(
 }
 
 @Composable
-fun ShowQuote(navController: NavHostController, quote: String, author: String, tag: String){
-    Log.i("show", "show the quote "+quote)
+fun ShowQuote(
+    navController: NavHostController,
+    homeViewModel: HomeViewModel,
+    uiData: NetworkResponse.Success<Quote>?,
+    quote: String,
+    author: String,
+    tag: String
+){
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -229,15 +239,40 @@ fun ShowQuote(navController: NavHostController, quote: String, author: String, t
         Text(modifier= Modifier.wrapContentSize(), text=tag, color=themeColors().lightText, fontSize = 15.sp)
     }
     Spacer(modifier = Modifier.height(20.dp))
-    MiddleRowButtons(navController, quote)
+    MiddleRowButtons(navController, uiData, homeViewModel, quote)
 }
 
 @Composable
-fun MiddleRowButtons(navController: NavHostController, quote: String){
+fun MiddleRowButtons(
+    navController: NavHostController,
+    uiData: NetworkResponse.Success<Quote>?,
+    homeViewModel: HomeViewModel,
+    quote: String
+){
     Row (
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ){
+        IconButton(
+            onClick = {
+                Log.i("bookmark button got clicked", uiData.toString())
+                uiData?.let {
+                    homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
+                }
+
+            },
+            modifier = Modifier
+                .size(40.dp)
+                .background(color = themeColors().surface, shape = CircleShape)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.bookmark_icon),
+                contentDescription = "save",
+                tint = themeColors().text,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(30.dp))
         IconButton(
             onClick = { navController.navigate("Share/$quote") },
             modifier = Modifier
