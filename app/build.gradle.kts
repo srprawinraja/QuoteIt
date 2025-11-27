@@ -47,6 +47,8 @@ dependencies {
     val  nav_version = "2.9.6"
     val room_version = "2.6.1"
     // implementation("com.google.mlkit:translate:17.0.0")
+    // timber 
+    implementation("com.jakewharton.timber:timber:5.0.1")
     ksp( "androidx.room:room-compiler:$room_version" ) // replaces kapt
     implementation( "androidx.room:room-runtime:$room_version")  // core Room
     implementation( "androidx.room:room-ktx:$room_version")      // coroutine support

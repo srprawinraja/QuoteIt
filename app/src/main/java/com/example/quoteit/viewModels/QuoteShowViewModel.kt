@@ -24,6 +24,7 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
@@ -31,17 +32,14 @@ import java.io.FileOutputStream
 class QuoteShowViewModel(val contextHelper: ContextHelper) : ViewModel() {
 
     @OptIn(ExperimentalComposeApi::class)
-    fun getData(captureController: CaptureController){
-        Log.i("capture printed", captureController.toString())
+    fun convertAndShareAsImage(captureController: CaptureController){
         viewModelScope.launch {
             val bitmapAsync = captureController.captureAsync()
             try {
                 val bitmap: ImageBitmap = bitmapAsync.await()
-                Log.i("value composed","value composed using ")
                 val capturedBitmap: Bitmap = bitmap.asAndroidBitmap()
                 shareBitmap(capturedBitmap)
             } catch (error: CancellationException) {
-                Log.i("get data method throws error", error.toString())
             }
         }
     }

@@ -87,7 +87,7 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
                 Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
                         marked.value = !marked.value
-                        tagsViewModel.changeMarked(tags[index].id, marked.value)
+                        tagsViewModel.changeTagMark(tags[index].id, marked.value)
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,

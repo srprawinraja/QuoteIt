@@ -19,19 +19,19 @@ import retrofit2.Response
 
 class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHelper): ViewModel() {
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
-        fetchTagsAndStore()
+        getListOfTags()
     }
     val tagsFlow = tagRepository.tagsFlow
     init {
-        fetchTagsAndStore()
+        getListOfTags()
     }
-    fun changeMarked(id: Int, marked: Boolean){
+    fun changeTagMark(id: Int, marked: Boolean){
         viewModelScope.launch {
             tagRepository.updateMarked(id, marked)
         }
     }
 
-    fun fetchTagsAndStore(){
+    fun getListOfTags(){
         viewModelScope.launch {
             if(networkHelper.isNetworkAvailable()) {
                 networkHelper.stopMonitoring()
