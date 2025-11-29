@@ -22,6 +22,7 @@ import com.example.quoteit.utils.SharedPreferenceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import timber.log.Timber
 
 
 class HomeViewModel(
@@ -49,44 +50,46 @@ class HomeViewModel(
     val quoteService = RetroFitInstance.quoteService
     val todayDate: String = DateHelper.getDate()
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
-        changeTodayQuote()
+        updateTodayQuote()
     }
     val tagsFlow = tagRepository.tagsFlow
 
 
     init{
-        changeTodayQuote()
+        updateTodayQuote()
     }
 
-    fun changeTodayQuote() {
+    fun updateTodayQuote() {
         if(sharedPreferenceHelper.contains(todayDate)) {
             val json = sharedPreferenceHelper.getValue(todayDate)
             val data = gsonHelper.getObj(json, Quote::class.java)
-//            translator.translate(data.content)
-//                .addOnSuccessListener { translated ->
-//                    data.content = translated
-//                    _uiState.value = NetworkResponse.Success(data)
-//                }.addOnFailureListener {
-//                    _uiState.value = NetworkResponse.Success(data)
-//                }
             _uiState.value = NetworkResponse.Success(data)
         }
         else {
             if(networkHelper.isNetworkAvailable()) {
                 networkHelper.stopMonitoring()
                 viewModelScope.launch {
-                    val response: Response<Quote> = quoteService.getRandomQuote()
-                    if (response.isSuccessful) {
-                        val body = response.body()
-                        if (body != null) {
-                            _uiState.value = NetworkResponse.Success(body)
-                            val json = gsonHelper.getJson(body)
-                            sharedPreferenceHelper.save(todayDate, json)
+                    try {
+                        val response: Response<Quote> = quoteService.getRandomQuote()
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            if (body != null) {
+                                _uiState.value = NetworkResponse.Success(body)
+                                val json = gsonHelper.getJson(body)
+                                sharedPreferenceHelper.save(todayDate, json)
+                            } else {
+                                _uiState.value = NetworkResponse.ErrorQuote(
+                                    defaultErrorQuote,
+                                    response.message()
+                                )
+                            }
                         } else {
-                            _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
+                            Timber.i( "request unsuccessful. Failed to update today quote");
+                            _uiState.value =
+                                NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }
-                    } else {
-                        _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
+                    } catch (exception: Exception){
+                        Timber.e(exception, "Failed to update today quote");
                     }
                 }
             } else {
@@ -98,43 +101,48 @@ class HomeViewModel(
         }
     }
 
-    fun changeSelectedQuote(tag: String){
+    fun updateSelectedTagQuote(tag: String){
         viewModelScope.launch {
-            if(networkHelper.isNetworkAvailable()) {
-                networkHelper.stopMonitoring()
-                viewModelScope.launch {
-                    val response: Response<Quote> = quoteService.getRandomQuoteByTag(tag)
-                    if (response.isSuccessful) {
-                        val body = response.body()
-                        if (body != null) {
-//                            translator.translate(body.content)
-//                                .addOnSuccessListener { translated ->
-//                                    body.content = translated
-//                                    _uiState.value = NetworkResponse.Success(body)
-//                                }.addOnFailureListener {
-//                                    _uiState.value = NetworkResponse.Success(body)
-//                                }
-                            _uiState.value = NetworkResponse.Success(body)
+            try {
+                if (networkHelper.isNetworkAvailable()) {
+                    networkHelper.stopMonitoring()
+                    viewModelScope.launch {
+                        val response: Response<Quote> = quoteService.getRandomQuoteByTag(tag)
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            if (body != null) {
+                                _uiState.value = NetworkResponse.Success(body)
 
+                            } else {
+                                _uiState.value = NetworkResponse.ErrorQuote(
+                                    defaultErrorQuote,
+                                    response.message()
+                                )
+                            }
                         } else {
-                            _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
+                            Timber.i( "request unsuccessful. Failed to update selected tag quote");
+                            _uiState.value =
+                                NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }
-                    } else {
-                        Log.e("error from change selected quote", response.message())
-                        _uiState.value = NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                     }
+                } else {
+                    _uiState.value = NetworkResponse.LoadingQuote(
+                        defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
+                    )
+                    networkHelper.startMonitoring()
                 }
-            } else {
-                _uiState.value = NetworkResponse.LoadingQuote(
-                    defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
-                )
-                networkHelper.startMonitoring()
+            } catch (exception: Exception){
+                Timber.e(exception, "Failed to update selected tag quote");
             }
         }
     }
-    fun changeMarked(id: Int, marked: Boolean){
+    fun changeTagMark(id: Int, marked: Boolean){
         viewModelScope.launch {
-            tagRepository.updateMarked(id, marked)
+            try {
+                tagRepository.updateMarked(id, marked)
+            } catch (exception: Exception){
+                Timber.e(exception, "Failed to change quote mark");
+            }
         }
     }
     fun saveQuote(
@@ -144,13 +152,18 @@ class HomeViewModel(
         tag: String
     ){
         viewModelScope.launch {
-            savedQuoteRepository.saveQuote(SavedQuoteEntity(
-                savedQuote = quote,
-                saveQuoteId = id,
-                savedAuthorQuote = author,
-                savedTagName = tag,
-            ))
-            Log.i("display all saved quotes", savedQuoteRepository.getAllSavedQuote().toString())
+            try {
+                savedQuoteRepository.saveQuote(
+                    SavedQuoteEntity(
+                        savedQuote = quote,
+                        saveQuoteId = id,
+                        savedAuthorQuote = author,
+                        savedTagName = tag,
+                    )
+                )
+            } catch (exception: Exception){
+                Timber.e(exception, "failed to save the quote");
+            }
         }
     }
     fun isQuoteExist(){

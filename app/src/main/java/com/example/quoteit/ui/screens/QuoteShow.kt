@@ -58,7 +58,7 @@ fun QuoteShow(quote: String, quoteShowViewModel: QuoteShowViewModel) {
     val captureController = rememberCaptureController()
     LaunchedEffect(captureController) {
         withFrameNanos {
-            quoteShowViewModel.getData(captureController)
+            quoteShowViewModel.convertAndShareAsImage(captureController)
         }
     }
 

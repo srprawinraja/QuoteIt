@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -39,7 +40,19 @@ fun SavedDetailScreen(navController: NavHostController) {
         ) {
             Icon(painter = painterResource(R.drawable.left_icon), contentDescription = "left button")
         }
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(30.dp))
+
+        TagAndComposable()
+        TagAndComposable()
+
+    }
+}
+@Composable
+fun TagAndComposable(){
+
+    Column (
+        modifier = Modifier.fillMaxWidth()
+    ){
         Text(
             "Inspiration",
             color = themeColors().text,
@@ -51,6 +64,7 @@ fun SavedDetailScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.width(10.dp))
             quoteBoxBigger()
         }
+        Spacer(modifier = Modifier.height(25.dp))
     }
 }
 @Composable

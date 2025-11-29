@@ -85,7 +85,7 @@ fun HomeScreen(
                 Button(
                     onClick = {
                         selectedId.value = 0
-                        homeViewModel.changeTodayQuote()
+                        homeViewModel.updateTodayQuote()
                     },
                     colors = ButtonColors(
                         containerColor = themeColors().background,
@@ -119,7 +119,7 @@ fun HomeScreen(
                         Button(
                             onClick = {
                                 selectedId.value = tag.id
-                                homeViewModel.changeSelectedQuote(tag.tagSlug)
+                                homeViewModel.updateSelectedTagQuote(tag.tagSlug)
                             },
                             colors = ButtonColors(
                                 containerColor = themeColors().background,
@@ -149,7 +149,7 @@ fun HomeScreen(
                             if (selectedId.value == tag.id) {
                                 Icon(
                                     modifier = Modifier.clickable(onClick = {
-                                        homeViewModel.changeMarked(tag.id, false)
+                                        homeViewModel.changeTagMark(tag.id, false)
                                     }),
                                     painter = painterResource(R.drawable.cancel_icon),
                                     contentDescription = "cancel icon",
