@@ -14,6 +14,6 @@ interface SavedQuoteDao {
     @Query("SELECT * FROM SavedQuoteEntity")
     suspend fun getAllSaved(): List<SavedQuoteEntity>
 
-    @Query("SELECT * FROM SavedQuoteEntity WHERE saved_quote_id=:quoteId")
-    suspend fun isQuoteExist(quoteId: String): SavedQuoteEntity
+    @Query("SELECT * FROM SavedQuoteEntity WHERE saved_quote_id=:id")
+    suspend fun getSavedQuote(id: String): SavedQuoteEntity?
 }

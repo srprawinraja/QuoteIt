@@ -166,8 +166,10 @@ class HomeViewModel(
             }
         }
     }
-    fun isQuoteExist(){
-
+    fun isQuoteExist(quoteId: Int){
+        viewModelScope.launch {
+            savedQuoteRepository.isQuoteExist(quoteId)
+        }
     }
 
 }

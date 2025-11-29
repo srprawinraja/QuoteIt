@@ -82,12 +82,12 @@ fun TagRow(){
     }
     Spacer(modifier = Modifier.height(10.dp))
     Row {
-        quoteBox()
+        QuoteComponentBox()
     }
 }
 
 @Composable
-fun quoteBox(){
+fun QuoteComponentBox(){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
