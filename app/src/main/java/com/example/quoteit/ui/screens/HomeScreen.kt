@@ -257,6 +257,26 @@ fun MiddleRowButtons(
             onClick = {
 
                 uiData?.let {
+                    navController.navigate("Saved")
+                }
+
+            },
+            modifier = Modifier
+                .size(40.dp)
+                .background(color = themeColors().surface, shape = CircleShape)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.book_icon),
+                contentDescription = "save",
+                tint = themeColors().text,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(30.dp))
+        IconButton(
+            onClick = {
+
+                uiData?.let {
                     homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
                    homeViewModel.getSavedQuotes()
                 }

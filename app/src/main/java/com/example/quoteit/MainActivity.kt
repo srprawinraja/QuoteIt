@@ -75,6 +75,9 @@ fun AppNavigation(
         composable("Saved"){
             SavedScreen(navController)
         }
+        composable("SavedDetail"){
+            SavedDetailScreen(navController)
+        }
     }
 }
 

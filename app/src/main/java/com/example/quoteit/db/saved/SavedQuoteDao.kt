@@ -12,7 +12,7 @@ interface SavedQuoteDao {
     suspend fun insert(vararg savedQuoteEntity: SavedQuoteEntity)
 
     @Query("SELECT * FROM SavedQuoteEntity")
-    suspend fun getAllSaved(): List<SavedQuoteEntity>
+    fun getAllSaved(): Flow<List<SavedQuoteEntity>>
 
     @Query("SELECT * FROM SavedQuoteEntity WHERE saved_quote_id=:id")
     suspend fun getSavedQuote(id: String): SavedQuoteEntity?
