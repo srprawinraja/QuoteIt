@@ -33,7 +33,7 @@ fun SavedScreen(navController: NavHostController) {
     Column (
         modifier = Modifier.
         fillMaxSize().
-        background(color = themeColors().background)
+        background(color = themeColors().background).padding(10.dp)
     ){
         IconButton(
             onClick = {
