@@ -24,10 +24,10 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
+private const val TAG = "QuoteShowViewModel"
 
 class QuoteShowViewModel(val contextHelper: ContextHelper) : ViewModel() {
 
@@ -39,7 +39,8 @@ class QuoteShowViewModel(val contextHelper: ContextHelper) : ViewModel() {
                 val bitmap: ImageBitmap = bitmapAsync.await()
                 val capturedBitmap: Bitmap = bitmap.asAndroidBitmap()
                 shareBitmap(capturedBitmap)
-            } catch (error: CancellationException) {
+            } catch (e: CancellationException) {
+                Log.e(TAG, "failed to convert and share as Image", e)
             }
         }
     }
@@ -59,23 +60,27 @@ class QuoteShowViewModel(val contextHelper: ContextHelper) : ViewModel() {
             FileProvider.getUriForFile(contextHelper.getContext(), "${contextHelper.getContext().packageName}.fileprovider", file)
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            throw Exception(e)
         }
     }
     @SuppressLint("QueryPermissionsNeeded")
     fun shareBitmap(bitmap: Bitmap) {
-        val uri = saveBitmapToFile( bitmap) ?: return
-        Log.i("uri", "uri is printed $uri")
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "image/*" // <-- make it generic
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            val uri = saveBitmapToFile(bitmap) ?: return
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/*" // <-- make it generic
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = Intent.createChooser(shareIntent, "Share image via")
+            val resolveInfos =
+                contextHelper.getContext().packageManager.queryIntentActivities(shareIntent, 0)
+            for (info in resolveInfos) {
+                Log.d("Share", "Can handle: ${info.activityInfo.packageName}")
+            }
+            contextHelper.getContext().startActivity(chooser)
+        } catch (e: Exception){
+            throw Exception(e)
         }
-        val chooser = Intent.createChooser(shareIntent, "Share image via")
-        val resolveInfos = contextHelper.getContext().packageManager.queryIntentActivities(shareIntent, 0)
-        for (info in resolveInfos) {
-            Log.d("Share", "Can handle: ${info.activityInfo.packageName}")
-        }
-        contextHelper.getContext().startActivity(chooser)
     }
 }

@@ -10,6 +10,7 @@ import com.example.quoteit.INTERNET_TURN_ON_REQUEST_MESSAGE
 import com.example.quoteit.LOADING_MESSAGE
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.api.RetroFitInstance
+import com.example.quoteit.data.ApiException
 import com.example.quoteit.data.Quote
 import com.example.quoteit.db.saved.SavedQuoteEntity
 import com.example.quoteit.db.saved.SavedQuoteRepository
@@ -22,9 +23,8 @@ import com.example.quoteit.utils.SharedPreferenceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
-import timber.log.Timber
 
-
+private const val TAG = "HomeViewModel"
 class HomeViewModel(
     contextHelper: ContextHelper,
     val sharedPreferenceHelper: SharedPreferenceHelper,
@@ -84,12 +84,13 @@ class HomeViewModel(
                                 )
                             }
                         } else {
-                            Timber.i( "request unsuccessful. Failed to update today quote");
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
+                            Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
+
                         }
                     } catch (exception: Exception){
-                        Timber.e(exception, "Failed to update today quote");
+                        Log.e(TAG, exception.toString());
                     }
                 }
             } else {
@@ -120,7 +121,8 @@ class HomeViewModel(
                                 )
                             }
                         } else {
-                            Timber.i( "request unsuccessful. Failed to update selected tag quote");
+                            Log.i(TAG, "failed to update selected tag quote", ApiException(response.code().toString()+" "+response.message()))
+
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                         }
@@ -132,7 +134,7 @@ class HomeViewModel(
                     networkHelper.startMonitoring()
                 }
             } catch (exception: Exception){
-                Timber.e(exception, "Failed to update selected tag quote");
+                Log.e(TAG, "failed to update selected tag quote", exception);
             }
         }
     }
@@ -141,7 +143,7 @@ class HomeViewModel(
             try {
                 tagRepository.updateMarked(id, marked)
             } catch (exception: Exception){
-                Timber.e(exception, "Failed to change quote mark");
+                Log.e(TAG, "failed to change quote mark", exception);
             }
         }
     }
@@ -153,22 +155,26 @@ class HomeViewModel(
     ){
         viewModelScope.launch {
             try {
-                savedQuoteRepository.saveQuote(
-                    SavedQuoteEntity(
-                        savedQuote = quote,
-                        saveQuoteId = id,
-                        savedAuthorQuote = author,
-                        savedTagName = tag,
+                if(savedQuoteRepository.isQuoteExist(id)) {
+                    savedQuoteRepository.saveQuote(
+                        SavedQuoteEntity(
+                            savedQuote = quote,
+                            saveQuoteId = id,
+                            savedAuthorQuote = author,
+                            savedTagName = tag,
+                        )
                     )
-                )
+                }
             } catch (exception: Exception){
-                Timber.e(exception, "failed to save the quote");
+                Log.e(TAG, "failed to save the quote", exception);
+
             }
         }
     }
-    fun isQuoteExist(quoteId: Int){
+
+    fun getSavedQuotes() {
         viewModelScope.launch {
-            savedQuoteRepository.isQuoteExist(quoteId)
+
         }
     }
 
