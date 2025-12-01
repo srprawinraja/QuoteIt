@@ -255,9 +255,10 @@ fun MiddleRowButtons(
     ){
         IconButton(
             onClick = {
-                Log.i("bookmark button got clicked", uiData.toString())
+
                 uiData?.let {
                     homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
+                   homeViewModel.getSavedQuotes()
                 }
 
             },

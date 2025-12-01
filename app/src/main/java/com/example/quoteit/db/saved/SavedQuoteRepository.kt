@@ -15,7 +15,7 @@ class SavedQuoteRepository (context: Context){
     suspend fun getAllSavedQuote(): List<SavedQuoteEntity> {
         return savedQuoteDao.getAllSaved()
     }
-    suspend fun isQuoteExist(id: Int): Boolean {
+    suspend fun isQuoteExist(id: String): Boolean {
         return savedQuoteDao.getSavedQuote(id) == null
     }
 }
