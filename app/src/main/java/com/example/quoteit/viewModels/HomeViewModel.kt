@@ -160,7 +160,7 @@ class HomeViewModel(
                         SavedQuoteEntity(
                             savedQuote = quote,
                             saveQuoteId = id,
-                            savedAuthorQuote = author,
+                            savedAuthor = author,
                             savedTagName = tag,
                         )
                     )

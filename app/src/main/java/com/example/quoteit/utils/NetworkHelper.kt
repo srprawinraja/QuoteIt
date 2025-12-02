@@ -15,7 +15,11 @@ class NetworkHelper(private val contextHelper: ContextHelper, private var onNetw
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             // Called when network is available
-            onNetworkAvailable()
+            try {
+                onNetworkAvailable()
+            } catch (e: Exception){
+                throw (e)
+            }
         }
 
         override fun onLost(network: Network) {

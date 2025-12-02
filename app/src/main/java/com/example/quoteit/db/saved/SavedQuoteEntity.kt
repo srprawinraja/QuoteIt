@@ -10,5 +10,5 @@ data class SavedQuoteEntity(
     @ColumnInfo(name = "saved_tag_name") val savedTagName: String,
     @ColumnInfo(name = "saved_quote") val savedQuote: String,
     @ColumnInfo(name = "saved_quote_id") val saveQuoteId: String,
-    @ColumnInfo(name = "saved_quote_author") val savedAuthorQuote: String
+    @ColumnInfo(name = "saved_quote_author") val savedAuthor: String
 )
