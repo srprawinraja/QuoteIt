@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -25,50 +27,67 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.quoteit.R
 import com.example.quoteit.ui.theme.themeColors
+import com.example.quoteit.viewModels.SavedDetailViewModel
 
 @Composable
-fun SavedDetailScreen(navController: NavHostController) {
+fun SavedDetailScreen(navController: NavHostController, savedDetailViewModel: SavedDetailViewModel) {
     Column (
         modifier = Modifier.
         fillMaxSize().
-        background(color = themeColors().background)
+        background(color = themeColors().background).padding(10.dp)
     ){
         IconButton(
             onClick = {
-                navController.navigate("saved")
+                navController.navigate("Home")
             }
         ) {
             Icon(painter = painterResource(R.drawable.left_icon), contentDescription = "left button")
         }
-        Spacer(modifier = Modifier.height(30.dp))
-
-        TagAndComposable()
-        TagAndComposable()
-
-    }
-}
-@Composable
-fun TagAndComposable(){
-
-    Column (
-        modifier = Modifier.fillMaxWidth()
-    ){
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
-            "Inspiration",
+            "Saved",
             color = themeColors().text,
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
         )
-        Row {
-            quoteBoxBigger()
-            Spacer(modifier = Modifier.width(10.dp))
-            quoteBoxBigger()
-        }
-        Spacer(modifier = Modifier.height(25.dp))
+        TagRow()
     }
 }
+
 @Composable
-fun quoteBoxBigger(){
+fun TagRow(){
+    Spacer(modifier = Modifier.height(30.dp))
+
+    Button(
+        onClick = {
+
+        },
+        colors = ButtonColors(
+            containerColor = themeColors().background,
+            contentColor = themeColors().text,
+            disabledContentColor = themeColors().text,
+            disabledContainerColor = themeColors().background
+        ),
+        modifier = Modifier.border(
+            border = BorderStroke(1.dp, themeColors().border),
+            shape = CircleShape
+        )
+    ) {
+        Text(
+            modifier = Modifier.wrapContentSize(),
+            text = "Inspiration",
+            color = themeColors().text,
+            fontSize = 15.sp
+        )
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+    Row {
+        QuoteComponentBox()
+    }
+}
+
+@Composable
+fun QuoteComponentBox(){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
