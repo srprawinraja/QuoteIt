@@ -255,11 +255,7 @@ fun MiddleRowButtons(
     ){
         IconButton(
             onClick = {
-
-                uiData?.let {
                     navController.navigate("Saved")
-                }
-
             },
             modifier = Modifier
                 .size(40.dp)
