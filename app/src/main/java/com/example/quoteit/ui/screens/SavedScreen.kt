@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -42,28 +45,39 @@ fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedVie
         modifier = Modifier.
         fillMaxSize().
         background(color = themeColors().background)
-    ){
+        ){
+        Spacer(modifier = Modifier.fillMaxWidth().padding(30.dp))
         IconButton(
             onClick = {
-                navController.navigate("saved")
-            }
+                navController.navigate("SavedDetail")
+            },
+            modifier = Modifier.padding(start = 10.dp).wrapContentSize()
         ) {
-            Icon(painter = painterResource(R.drawable.left_icon), contentDescription = "left button")
+            Icon(
+                painter = painterResource(R.drawable.left_icon),
+                contentDescription = "left button",
+                tint = themeColors().text
+            )
         }
         Spacer(modifier = Modifier.height(30.dp))
-        Text("Saved")
+        Text("Saved", color = themeColors().text, modifier = Modifier.padding(start = 30.dp), fontSize = 30.sp)
         Spacer(modifier = Modifier.height(10.dp))
         Column (
             modifier = Modifier.fillMaxSize().horizontalScroll(rememberScrollState())
         ){
-            uiSavedData.forEach { it -> TagAndComposable(navController, it.savedTagName, it.savedQuote, it.savedAuthor)
-            }
+
+           // uiSavedData.forEach { it ->
+                TagAndComposable(navController, "Inspiration")
+                TagAndComposable(navController, "Motivation")
+                TagAndComposable(navController, "Fear")
+
+            // }
         }
 
     }
 }
 @Composable
-fun TagAndComposable(navController: NavHostController, tag: String, quote: String, author: String){
+fun TagAndComposable(navController: NavHostController, tag: String){
 
     Column (
         modifier = Modifier.fillMaxWidth()
@@ -73,30 +87,48 @@ fun TagAndComposable(navController: NavHostController, tag: String, quote: Strin
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                "Inspiration",
-                color = themeColors().text,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-            )
+            Button(
+                onClick = {
+
+                },
+                colors = ButtonColors(
+                    containerColor = themeColors().background,
+                    contentColor = themeColors().text,
+                    disabledContentColor = themeColors().text,
+                    disabledContainerColor = themeColors().background
+                ),
+                modifier = Modifier.border(
+                    border = BorderStroke(1.dp, themeColors().border),
+                    shape = CircleShape
+                )
+            ) {
+                Text(
+                    text = "Inspiration",
+                    color = themeColors().text,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.wrapContentSize()
+                )
+            }
 
 
             Button(onClick = {
                 navController.navigate("SavedDetail")
             }) {
-                Text("View All")
+                Text("View All", color = themeColors().text)
             }
         }
         Row {
-            quoteBoxBigger()
+            QuoteBoxBigger("life is hard but iam get through it", "Prawin")
             Spacer(modifier = Modifier.width(10.dp))
-            quoteBoxBigger()
+            QuoteBoxBigger("life is hard but iam get through it", "Prawin")
+
         }
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
 @Composable
-fun quoteBoxBigger(){
+fun QuoteBoxBigger(savedQuote: String, savedQuoteAuthor: String){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
@@ -104,8 +136,8 @@ fun quoteBoxBigger(){
                 shape = RoundedCornerShape(5.dp)
             ).padding(20.dp)
     ){
-        Text(modifier= Modifier.wrapContentSize(), text="life got hard but iam harder than it", color = themeColors().text, fontSize = 20.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=savedQuote, color = themeColors().text, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
-        Text(modifier= Modifier.wrapContentSize(), text="Inspiration", color=themeColors().lightText, fontSize = 15.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=savedQuoteAuthor, color=themeColors().lightText, fontSize = 15.sp)
     }
 }
