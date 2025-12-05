@@ -53,7 +53,7 @@ class HomeViewModel(
         updateTodayQuote()
     }
     val tagsFlow = tagRepository.tagsFlow
-
+    private var quoteRequestResponse = false;
 
     init{
         updateTodayQuote()
@@ -61,6 +61,7 @@ class HomeViewModel(
 
     fun updateTodayQuote() {
         if(sharedPreferenceHelper.contains(todayDate)) {
+            quoteRequestResponse = true
             val json = sharedPreferenceHelper.getValue(todayDate)
             val data = gsonHelper.getObj(json, Quote::class.java)
             _uiState.value = NetworkResponse.Success(data)
@@ -74,22 +75,26 @@ class HomeViewModel(
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null) {
+                                quoteRequestResponse = true
                                 _uiState.value = NetworkResponse.Success(body)
                                 val json = gsonHelper.getJson(body)
                                 sharedPreferenceHelper.save(todayDate, json)
                             } else {
+                                quoteRequestResponse = false
                                 _uiState.value = NetworkResponse.ErrorQuote(
                                     defaultErrorQuote,
                                     response.message()
                                 )
                             }
                         } else {
+                            quoteRequestResponse = false
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
                             Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
 
                         }
                     } catch (exception: Exception){
+                        quoteRequestResponse = false
                         Log.e(TAG, exception.toString());
                     }
                 }
@@ -112,15 +117,20 @@ class HomeViewModel(
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null) {
+                                quoteRequestResponse = true
                                 _uiState.value = NetworkResponse.Success(body)
 
                             } else {
+                                quoteRequestResponse = false
+
                                 _uiState.value = NetworkResponse.ErrorQuote(
                                     defaultErrorQuote,
                                     response.message()
                                 )
                             }
                         } else {
+                            quoteRequestResponse = false
+
                             Log.i(TAG, "failed to update selected tag quote", ApiException(response.code().toString()+" "+response.message()))
 
                             _uiState.value =
@@ -128,12 +138,15 @@ class HomeViewModel(
                         }
                     }
                 } else {
+                    quoteRequestResponse = false
+
                     _uiState.value = NetworkResponse.LoadingQuote(
                         defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
                     )
                     networkHelper.startMonitoring()
                 }
             } catch (exception: Exception){
+                quoteRequestResponse = false
                 Log.e(TAG, "failed to update selected tag quote", exception);
             }
         }
@@ -155,7 +168,7 @@ class HomeViewModel(
     ){
         viewModelScope.launch {
             try {
-                if(savedQuoteRepository.isQuoteExist(id)) {
+                if(_uiState.value is NetworkResponse.Success  && !savedQuoteRepository.isQuoteExist(id)) {
                     savedQuoteRepository.saveQuote(
                         SavedQuoteEntity(
                             savedQuote = quote,
@@ -171,13 +184,6 @@ class HomeViewModel(
             }
         }
     }
-
-    fun getSavedQuotes() {
-        viewModelScope.launch {
-
-        }
-    }
-
 }
 
 

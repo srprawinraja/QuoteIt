@@ -274,7 +274,6 @@ fun MiddleRowButtons(
 
                 uiData?.let {
                     homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
-                   homeViewModel.getSavedQuotes()
                 }
 
             },
