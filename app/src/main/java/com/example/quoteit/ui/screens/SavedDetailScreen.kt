@@ -3,6 +3,7 @@ package com.example.quoteit.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,12 +51,15 @@ fun SavedDetailScreen(navController: NavHostController, savedDetailViewModel: Sa
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
         )
-        TagRow()
+        TagRow(navController)
+        TagRow(navController)
+        TagRow(navController)
+
     }
 }
 
 @Composable
-fun TagRow(){
+fun TagRow(navController: NavHostController){
     Spacer(modifier = Modifier.height(30.dp))
 
     Button(
@@ -82,18 +86,24 @@ fun TagRow(){
     }
     Spacer(modifier = Modifier.height(10.dp))
     Row {
-        QuoteComponentBox()
+        QuoteComponentBox("life got hard but iam harder than it", "prawin", navController)
+        QuoteComponentBox("life got hard but iam harder than it", "prawin", navController)
+        QuoteComponentBox("life got hard but iam harder than it", "prawin", navController)
+        QuoteComponentBox("life got hard but iam harder than it", "prawin", navController)
+
     }
 }
 
 @Composable
-fun QuoteComponentBox(){
+fun QuoteComponentBox(quote: String, author: String, navController: NavHostController){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
                 border = BorderStroke(1.dp, themeColors().text),
                 shape = RoundedCornerShape(5.dp)
-            ).padding(20.dp)
+            ).padding(20.dp).clickable(onClick = {
+                navController.navigate("Share/$quote")
+            })
     ){
         Text(modifier= Modifier.wrapContentSize(), text="life got hard but iam harder than it", color = themeColors().text, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
