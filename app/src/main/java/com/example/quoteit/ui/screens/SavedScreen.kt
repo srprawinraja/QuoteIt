@@ -3,6 +3,7 @@ package com.example.quoteit.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +50,7 @@ fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedVie
         Spacer(modifier = Modifier.fillMaxWidth().padding(30.dp))
         IconButton(
             onClick = {
-                navController.navigate("SavedDetail")
+                navController.navigate("Home")
             },
             modifier = Modifier.padding(start = 10.dp).wrapContentSize()
         ) {
@@ -119,22 +120,24 @@ fun TagAndComposable(navController: NavHostController, tag: String){
             }
         }
         Row {
-            QuoteBoxBigger("life is hard but iam get through it", "Prawin")
+            QuoteBoxBigger("life is hard but iam get through it", "Prawin", navController)
             Spacer(modifier = Modifier.width(10.dp))
-            QuoteBoxBigger("life is hard but iam get through it", "Prawin")
+            QuoteBoxBigger("life is hard but iam get through it", "Prawin", navController)
 
         }
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
 @Composable
-fun QuoteBoxBigger(savedQuote: String, savedQuoteAuthor: String){
+fun QuoteBoxBigger(savedQuote: String, savedQuoteAuthor: String, navController: NavHostController){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
                 border = BorderStroke(1.dp, themeColors().text),
                 shape = RoundedCornerShape(5.dp)
-            ).padding(20.dp)
+            ).padding(20.dp).clickable(onClick = {
+                navController.navigate("Share/$savedQuote")
+            })
     ){
         Text(modifier= Modifier.wrapContentSize(), text=savedQuote, color = themeColors().text, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
