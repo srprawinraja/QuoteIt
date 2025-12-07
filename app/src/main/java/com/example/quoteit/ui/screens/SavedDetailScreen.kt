@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -35,8 +36,10 @@ fun SavedDetailScreen(navController: NavHostController, savedDetailViewModel: Sa
     Column (
         modifier = Modifier.
         fillMaxSize().
-        background(color = themeColors().background).padding(10.dp)
+        background(color = themeColors().background)
     ){
+        Spacer(modifier = Modifier.fillMaxWidth().padding(30.dp))
+
         IconButton(
             onClick = {
                 navController.navigate("Home")
@@ -51,8 +54,6 @@ fun SavedDetailScreen(navController: NavHostController, savedDetailViewModel: Sa
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
         )
-        TagRow(navController)
-        TagRow(navController)
         TagRow(navController)
 
     }
