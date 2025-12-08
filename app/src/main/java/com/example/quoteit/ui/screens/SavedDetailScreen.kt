@@ -42,7 +42,7 @@ fun SavedDetailScreen(navController: NavHostController, savedDetailViewModel: Sa
 
         IconButton(
             onClick = {
-                navController.navigate("Home")
+                navController.navigate("Saved")
             }
         ) {
             Icon(painter = painterResource(R.drawable.left_icon), contentDescription = "left button")
