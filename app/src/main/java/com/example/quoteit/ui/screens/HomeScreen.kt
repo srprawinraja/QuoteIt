@@ -271,11 +271,9 @@ fun MiddleRowButtons(
         Spacer(modifier = Modifier.width(30.dp))
         IconButton(
             onClick = {
-
                 uiData?.let {
                     homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
                 }
-
             },
             modifier = Modifier
                 .size(40.dp)

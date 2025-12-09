@@ -7,6 +7,7 @@ import com.example.quoteit.db.QuoteDatabaseInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
@@ -27,6 +28,7 @@ class SavedQuoteRepository (context: Context){
     }
 
     suspend fun isQuoteExist(id: String): Boolean {
-        return savedQuoteDao.getSavedQuote(id) == null
+        return savedQuoteDao.getSavedQuote(id) != null
     }
+
 }
