@@ -8,4 +8,5 @@ import kotlinx.coroutines.launch
 class SavedViewModel (savedQuoteRepository: SavedQuoteRepository): ViewModel() {
     val savedQuoteFlow = savedQuoteRepository.savedQuoteFlow
 
+
 }

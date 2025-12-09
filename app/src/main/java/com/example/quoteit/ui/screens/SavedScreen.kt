@@ -1,5 +1,6 @@
 package com.example.quoteit.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +42,7 @@ import com.example.quoteit.viewModels.SavedViewModel
 @Composable
 fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedViewModel) {
     val uiSavedData by savedScreenViewModel.savedQuoteFlow.collectAsState()
-
+    Log.i("ui output", uiSavedData.toString())
     Column (
         modifier = Modifier.
         fillMaxSize().
@@ -66,7 +67,6 @@ fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedVie
         Column (
             modifier = Modifier.fillMaxSize().horizontalScroll(rememberScrollState())
         ){
-
            // uiSavedData.forEach { it ->
                 TagAndComposable(navController, "Inspiration")
                 TagAndComposable(navController, "Motivation")
@@ -74,7 +74,6 @@ fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedVie
 
             // }
         }
-
     }
 }
 @Composable
