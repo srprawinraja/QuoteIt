@@ -14,6 +14,7 @@ import com.example.quoteit.data.ApiException
 import com.example.quoteit.data.Quote
 import com.example.quoteit.db.saved.SavedQuoteEntity
 import com.example.quoteit.db.saved.SavedQuoteRepository
+import com.example.quoteit.db.tag.TagEntity
 import com.example.quoteit.db.tag.TagRepository
 import com.example.quoteit.utils.ContextHelper
 import com.example.quoteit.utils.DateHelper
@@ -37,13 +38,15 @@ class HomeViewModel(
         "1",
         DEFAULT_AUTHOR_NAME,
         ERROR_MESSAGE,
-        listOf(DEFAULT_TAG)
+        "1",
+        DEFAULT_TAG
     )
     val defaultLoadingQuote =  Quote(
         "2",
         DEFAULT_AUTHOR_NAME,
         LOADING_MESSAGE,
-        listOf(DEFAULT_TAG)
+        "2",
+        DEFAULT_TAG
     )
     private val _uiState = MutableStateFlow<NetworkResponse<Quote>>(NetworkResponse.LoadingQuote(defaultLoadingQuote))
     val uiState: MutableStateFlow<NetworkResponse<Quote>> = _uiState
@@ -100,20 +103,20 @@ class HomeViewModel(
                 }
             } else {
                 _uiState.value = NetworkResponse.LoadingQuote(
-                    defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
+                    defaultLoadingQuote.copy(quote = INTERNET_TURN_ON_REQUEST_MESSAGE)
                 )
                 networkHelper.startMonitoring()
             }
         }
     }
 
-    fun updateSelectedTagQuote(tag: String){
+    fun updateSelectedTagQuote(tagId: String){
         viewModelScope.launch {
             try {
                 if (networkHelper.isNetworkAvailable()) {
                     networkHelper.stopMonitoring()
                     viewModelScope.launch {
-                        val response: Response<Quote> = quoteService.getRandomQuoteByTag(tag)
+                        val response: Response<Quote> = quoteService.getRandomQuoteByTag(tagId)
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null) {
@@ -141,7 +144,7 @@ class HomeViewModel(
                     quoteRequestResponse = false
 
                     _uiState.value = NetworkResponse.LoadingQuote(
-                        defaultLoadingQuote.copy(content = INTERNET_TURN_ON_REQUEST_MESSAGE)
+                        defaultLoadingQuote.copy(quote = INTERNET_TURN_ON_REQUEST_MESSAGE)
                     )
                     networkHelper.startMonitoring()
                 }
@@ -151,13 +154,9 @@ class HomeViewModel(
             }
         }
     }
-    fun changeTagMark(id: Int, marked: Boolean){
+    fun deleteTag(tagEntity: TagEntity){
         viewModelScope.launch {
-            try {
-                tagRepository.updateMarked(id, marked)
-            } catch (exception: Exception){
-                Log.e(TAG, "failed to change quote mark", exception);
-            }
+            tagRepository.delete(tagEntity)
         }
     }
     fun saveQuote(

@@ -9,6 +9,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,14 +38,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.room.ColumnInfo
+import androidx.room.PrimaryKey
 import com.example.quoteit.R
+import com.example.quoteit.db.saved.SavedQuoteEntity
 import com.example.quoteit.ui.theme.themeColors
 import com.example.quoteit.viewModels.SavedViewModel
 
 @Composable
 fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedViewModel) {
     val uiSavedData by savedScreenViewModel.savedQuoteFlow.collectAsState()
-    Log.i("ui output", uiSavedData.toString())
+
     Column (
         modifier = Modifier.
         fillMaxSize().
@@ -64,6 +70,15 @@ fun SavedScreen(navController: NavHostController, savedScreenViewModel: SavedVie
         Spacer(modifier = Modifier.height(30.dp))
         Text("Saved", color = themeColors().text, modifier = Modifier.padding(start = 30.dp), fontSize = 30.sp)
         Spacer(modifier = Modifier.height(10.dp))
+        val tagBasedQuote: MutableMap<String, MutableList<SavedQuoteEntity>> = mutableMapOf()
+        for(data in uiSavedData){
+            if(!tagBasedQuote.contains(data.savedTagName)){
+                tagBasedQuote.put(data.savedTagName, mutableListOf())
+            }
+            tagBasedQuote[data.savedTagName]!!.add(
+                data
+            )
+        }
         Column (
             modifier = Modifier.fillMaxSize().horizontalScroll(rememberScrollState())
         ){
@@ -118,28 +133,67 @@ fun TagAndComposable(navController: NavHostController, tag: String){
                 Text("View All", color = themeColors().text)
             }
         }
+        val container = mutableListOf<SavedQuoteEntity>()
+
+        container.add(
+            SavedQuoteEntity(
+                id = 1,
+                savedTagName = "Motivation",
+                "lsdjaldadnasjkdnaskjcnkajsncaksndjksandjksanksa",
+                "1",
+                "mark"
+            )
+        )
+        container.add(
+            SavedQuoteEntity(
+                id = 1,
+                savedTagName = "Motivation",
+                "dasknd",
+                "1",
+                "mark"
+            )
+        )
+        container.add(
+            SavedQuoteEntity(
+                id = 1,
+                savedTagName = "Motivation",
+                "dasljdal",
+                "1",
+                "mark"
+            )
+        )
         Row {
-            QuoteBoxBigger("life is hard but iam get through it", "Prawin", navController)
-            Spacer(modifier = Modifier.width(10.dp))
-            QuoteBoxBigger("life is hard but iam get through it", "Prawin", navController)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    count=container.size,
+                ) { index ->
+                    QuoteBoxBigger(container[index], navController)
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+            }
 
         }
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
 @Composable
-fun QuoteBoxBigger(savedQuote: String, savedQuoteAuthor: String, navController: NavHostController){
+fun QuoteBoxBigger(savedQuoteEntity: SavedQuoteEntity, navController: NavHostController){
     Column (
         modifier = Modifier.width(150.dp)
             .border(
                 border = BorderStroke(1.dp, themeColors().text),
                 shape = RoundedCornerShape(5.dp)
             ).padding(20.dp).clickable(onClick = {
-                navController.navigate("Share/$savedQuote")
+                navController.navigate("Share/${savedQuoteEntity.savedQuote}")
             })
     ){
-        Text(modifier= Modifier.wrapContentSize(), text=savedQuote, color = themeColors().text, fontSize = 20.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=savedQuoteEntity.savedQuote, color = themeColors().text, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
-        Text(modifier= Modifier.wrapContentSize(), text=savedQuoteAuthor, color=themeColors().lightText, fontSize = 15.sp)
+        Text(modifier= Modifier.wrapContentSize(), text=savedQuoteEntity.savedAuthor, color=themeColors().lightText, fontSize = 15.sp)
     }
 }

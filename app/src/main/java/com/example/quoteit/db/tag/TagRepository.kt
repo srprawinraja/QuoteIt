@@ -20,24 +20,18 @@ class TagRepository(context: Context) {
             started = SharingStarted.Companion.Eagerly,
             initialValue = emptyList())
 
-    suspend fun getAllTag(): List<TagEntity>{
-        return tagDao.getAllTags()
-    }
 
-    suspend fun insertAllTag(tagsItem : List<TagsItem>){
-        tagsItem.forEach { tagsItem->
+    suspend fun insert(tagsItem : TagsItem){
             tagDao.insert(
                 TagEntity(
-                    tagName =  tagsItem.name,
-                    tagSlug = tagsItem.slug,
-                    tagImg = tagsItem.img,
+                    tagId = tagsItem.id,
+                    tagName =  tagsItem.tag,
                 )
             )
-        }
+    }
+    suspend fun delete(tagEntity: TagEntity){
+        tagDao.delete(tagEntity)
     }
 
 
-    suspend fun updateMarked(id: Int, marked: Boolean){
-        tagDao.updateMarked(id,marked)
-    }
 }

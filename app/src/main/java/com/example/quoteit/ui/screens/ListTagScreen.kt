@@ -20,8 +20,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,20 +31,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.quoteit.R
+import com.example.quoteit.api.NetworkResponse
+import com.example.quoteit.data.TagsItem
 import com.example.quoteit.db.tag.TagEntity
+import com.example.quoteit.ui.theme.ShowQuote
 import com.example.quoteit.ui.theme.themeColors
 import com.example.quoteit.viewModels.TagsViewModel
 
 @Composable
 fun ListTagScreen(tagsViewModel: TagsViewModel){
-    val uiData by tagsViewModel.tagsFlow.collectAsState()
+    val uiData =  tagsViewModel.uiState.collectAsState().value
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            tagsViewModel.getListOfTags();
+        }
+    }
     Column (
         modifier = Modifier.fillMaxSize()
             .background(color = themeColors().background)
@@ -64,15 +80,26 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
 
         }
         Spacer(modifier = Modifier.height(20.dp))
+        when (val result = uiData) {
+            is NetworkResponse.Success -> {
+                ShowListOfTags(tagsViewModel, result.data)
+            }
+            is NetworkResponse.Error -> {
+                ErrorPage(uiData.message)
+            }
+            is NetworkResponse.Loading -> {
+                LoadingPage()
+            }
+            else -> {}
+        }
 
-       ShowListOfTags(tagsViewModel, uiData)
 
         Spacer(modifier = Modifier.height(50.dp))
 
     }
 }
 @Composable
-fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -83,11 +110,11 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
             count=tags.size,
         ) { index ->
                 val marked: MutableState<Boolean> =
-                    remember { mutableStateOf(tags[index].tagMarked) }
+                    remember { mutableStateOf(tags[index].marked) }
                 Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
                         marked.value = !marked.value
-                        tagsViewModel.changeTagMark(tags[index].id, marked.value)
+                        tagsViewModel.updateTag(tags[index])
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,
@@ -113,15 +140,42 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagEntity>){
                                 )
                             }
                         }
-                        Image(
-                            modifier = Modifier.width(50.dp).height(50.dp),
-                            painter = painterResource(tags[index].tagImg),
-                            contentDescription = "",
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(tags[index].img)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Quote Image",
+                            modifier =Modifier.width(50.dp).height(50.dp)
                         )
-                        Text(text = tags[index].tagName, fontSize = 20.sp)
+                        Text(text = tags[index].tag, fontSize = 20.sp)
                     }
 
             }
         }
     }
 }
+
+@Composable
+fun ErrorPage(message: String){
+    Column (
+       modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Text(
+            message,
+            color = themeColors().text,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun LoadingPage(){
+    Column (
+        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        CircularProgressIndicator()
+    }
+}
+
