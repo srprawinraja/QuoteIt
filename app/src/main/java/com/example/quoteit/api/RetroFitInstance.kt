@@ -10,7 +10,7 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
-const val BASE_URL = "https://api.quotable.io"
+const val BASE_URL = "http://10.0.2.2:5001/quoteit-backend/us-central1/"
 
 object RetroFitInstance {
 

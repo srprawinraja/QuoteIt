@@ -1,8 +1,9 @@
 package com.example.quoteit.data
 
 data class Quote(
-    val _id: String,
+    val id: String,
     val author: String,
-    var content: String,
-    val tags: List<String>
+    var quote: String,
+    val slug: String,
+    val tag: String
 )

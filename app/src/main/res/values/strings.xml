@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QuoteIt</string>
+    <string name="view_all">View All</string>
+    <string name="saved">Saved</string>
 </resources>

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -56,9 +57,8 @@ fun HomeScreen(
         modifier = Modifier.
         fillMaxSize().
         background(color = themeColors().background)
-            .padding(30.dp),
+            .padding(30.dp).systemBarsPadding(),
     ){
-        Spacer(modifier = Modifier.height(30.dp))
 
         Row (
             modifier = Modifier.fillMaxWidth().wrapContentSize(),
@@ -114,12 +114,12 @@ fun HomeScreen(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 uiTagData.map { tag->
-                    val mark = remember{ mutableStateOf(tag.tagMarked)}
+                    val mark = remember{ mutableStateOf(true)}
                     if(mark.value){
                         Button(
                             onClick = {
                                 selectedId.value = tag.id
-                                homeViewModel.updateSelectedTagQuote(tag.tagSlug)
+                                homeViewModel.updateSelectedTagQuote(tag.tagId)
                             },
                             colors = ButtonColors(
                                 containerColor = themeColors().background,
@@ -149,7 +149,7 @@ fun HomeScreen(
                             if (selectedId.value == tag.id) {
                                 Icon(
                                     modifier = Modifier.clickable(onClick = {
-                                        homeViewModel.changeTagMark(tag.id, false)
+                                        homeViewModel.deleteTag(tag)
                                     }),
                                     painter = painterResource(R.drawable.cancel_icon),
                                     contentDescription = "cancel icon",
@@ -177,9 +177,9 @@ fun HomeScreen(
                         navController,
                         homeViewModel,
                         uiData,
-                        result.data.content,
+                        result.data.quote,
                         result.data.author,
-                        result.data.tags[0]
+                        result.data.tag
                     )
                 }
 
@@ -188,9 +188,9 @@ fun HomeScreen(
                         navController,
                         homeViewModel,
                         null,
-                        result.data.content,
+                        result.data.quote,
                         result.data.author,
-                        result.data.tags[0]
+                        result.data.tag
                     )
                 }
 
@@ -199,9 +199,9 @@ fun HomeScreen(
                         navController,
                         homeViewModel,
                         null,
-                        result.data.content,
+                        result.data.quote,
                         result.data.author,
-                        result.data.tags[0]
+                        result.data.tag
                     )
                 }
 
@@ -272,7 +272,7 @@ fun MiddleRowButtons(
         IconButton(
             onClick = {
                 uiData?.let {
-                    homeViewModel.saveQuote(uiData.data._id, uiData.data.content, uiData.data.author, uiData.data.tags[0])
+                    homeViewModel.saveQuote(uiData.data.id, uiData.data.quote, uiData.data.author, uiData.data.tag)
                 }
             },
             modifier = Modifier

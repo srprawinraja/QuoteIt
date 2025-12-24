@@ -3,9 +3,9 @@ package com.example.quoteit.data
 import com.example.quoteit.R
 
 data class TagsItem(
-    val _id: String,
-    val name: String,
+    val id: String,
+    val tag: String,
     val slug: String,
-    var img: Int
+    val img: String,
 )
 
