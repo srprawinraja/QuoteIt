@@ -43,11 +43,18 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.common.ktx)
+    implementation(libs.firebase.appcheck.ktx)
+    implementation(libs.firebase.appcheck.debug)
+
     val lifecycle_version = "2.6.2" // Check for the latest stable version
     val  nav_version = "2.9.6"
     val room_version = "2.6.1"
     // implementation("com.google.mlkit:translate:17.0.0")
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    // Firebase BOM manages versions automatically
+    // Firebase BOM automatically manages versions
+    // Firebase BOM manages all versions automatically
+
     ksp( "androidx.room:room-compiler:$room_version" ) // replaces kapt
     implementation( "androidx.room:room-runtime:$room_version")  // core Room
     implementation( "androidx.room:room-ktx:$room_version")      // coroutine support

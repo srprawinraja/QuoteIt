@@ -63,6 +63,9 @@ class HomeViewModel(
     }
 
     fun updateTodayQuote() {
+        _uiState.value = NetworkResponse.LoadingQuote(
+            defaultLoadingQuote.copy(quote = LOADING_MESSAGE)
+        )
         if(sharedPreferenceHelper.contains(todayDate)) {
             quoteRequestResponse = true
             val json = sharedPreferenceHelper.getValue(todayDate)
@@ -111,6 +114,9 @@ class HomeViewModel(
     }
 
     fun updateSelectedTagQuote(tagId: String){
+        _uiState.value = NetworkResponse.LoadingQuote(
+            defaultLoadingQuote.copy(quote = LOADING_MESSAGE)
+        )
         viewModelScope.launch {
             try {
                 if (networkHelper.isNetworkAvailable()) {
@@ -167,7 +173,8 @@ class HomeViewModel(
     ){
         viewModelScope.launch {
             try {
-                if(_uiState.value is NetworkResponse.Success  && !savedQuoteRepository.isQuoteExist(id)) {
+                Log.i(TAG, "saving the quote...")
+             if(_uiState.value is NetworkResponse.Success  && !savedQuoteRepository.isQuoteExist(id)) {
                     savedQuoteRepository.saveQuote(
                         SavedQuoteEntity(
                             savedQuote = quote,
@@ -176,10 +183,15 @@ class HomeViewModel(
                             savedTagName = tag,
                         )
                     )
-                }
+             } else {
+                 if(savedQuoteRepository.isQuoteExist(id)){
+                     Log.e(TAG, "unable to save quote already exist")
+                 } else {
+                     Log.e(TAG, "unable to save api request is not succeeded")
+                 }
+             }
             } catch (exception: Exception){
-                Log.e(TAG, "failed to save the quote", exception);
-
+                Log.e(TAG, "failed to save the quote", exception)
             }
         }
     }

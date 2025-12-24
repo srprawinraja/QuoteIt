@@ -31,6 +31,7 @@ class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHel
         getListOfTags()
     }
     val tagsFlow = tagRepository.tagsFlow
+    var allMarkedTags = listOf<TagEntity>()
     val quoteService = RetroFitInstance.quoteService
 
     init {
@@ -40,6 +41,7 @@ class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHel
     fun getListOfTags(){
         viewModelScope.launch {
             try {
+                getAllMarkedTag()
                 if (networkHelper.isNetworkAvailable()) {
                     networkHelper.stopMonitoring()
                         val response: Response<List<TagsItem>> = quoteService.getAllTags()
@@ -65,20 +67,27 @@ class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHel
         }
     }
 
-    fun updateTag(tagsItem: TagsItem){
+    fun getAllMarkedTag(){
         viewModelScope.launch {
-            quoteService.updateTag(
-                UpdateTagRequest(
-                    tagsItem.id,
-                    !tagsItem.marked
-                )
-            )
-            if(!tagsItem.marked) {
-                tagRepository.insert(tagsItem)
-            }
-
+           allMarkedTags =  tagRepository.getAllTags()
         }
     }
-
+    fun isTagMarked(tagId: String): Boolean{
+        return tagsFlow.value.any { tag -> tag.tagId == tagId }
+    }
+    fun unMarkTheTag(tagId: String){
+        viewModelScope.launch {
+            allMarkedTags.forEach { tag->
+                if(tag.tagId==tagId){
+                    tagRepository.delete(tag)
+                }
+            }
+        }
+    }
+    fun markTheTag(tagsItem: TagsItem){
+        viewModelScope.launch {
+            tagRepository.insert(tagsItem)
+        }
+    }
 
 }

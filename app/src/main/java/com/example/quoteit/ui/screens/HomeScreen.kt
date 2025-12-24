@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -56,9 +57,8 @@ fun HomeScreen(
         modifier = Modifier.
         fillMaxSize().
         background(color = themeColors().background)
-            .padding(30.dp),
+            .padding(30.dp).systemBarsPadding(),
     ){
-        Spacer(modifier = Modifier.height(30.dp))
 
         Row (
             modifier = Modifier.fillMaxWidth().wrapContentSize(),
@@ -272,7 +272,7 @@ fun MiddleRowButtons(
         IconButton(
             onClick = {
                 uiData?.let {
-                    homeViewModel.saveQuote(uiData.data.tag, uiData.data.quote, uiData.data.author, uiData.data.tag)
+                    homeViewModel.saveQuote(uiData.data.id, uiData.data.quote, uiData.data.author, uiData.data.tag)
                 }
             },
             modifier = Modifier

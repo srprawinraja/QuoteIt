@@ -15,12 +15,7 @@ interface QuotesService {
     @GET("tags")
     suspend fun getAllTags(): Response<List<TagsItem>>
 
-    @POST("tags")
-    suspend fun updateTag(
-        @Body request: UpdateTagRequest
-    ): Response<TagsItem>
-
     @GET("random")
-    suspend fun getRandomQuoteByTag(@Query("tagId") tagId: String): Response<Quote>
+    suspend fun getRandomQuoteByTag(@Query("slug") slug: String): Response<Quote>
 
 }

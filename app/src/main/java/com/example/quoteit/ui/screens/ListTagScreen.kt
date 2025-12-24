@@ -1,7 +1,5 @@
 package com.example.quoteit.ui.screens
 
-import android.util.Log
-import android.widget.ProgressBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -45,7 +44,6 @@ import com.example.quoteit.R
 import com.example.quoteit.api.NetworkResponse
 import com.example.quoteit.data.TagsItem
 import com.example.quoteit.db.tag.TagEntity
-import com.example.quoteit.ui.theme.ShowQuote
 import com.example.quoteit.ui.theme.themeColors
 import com.example.quoteit.viewModels.TagsViewModel
 
@@ -53,6 +51,8 @@ import com.example.quoteit.viewModels.TagsViewModel
 fun ListTagScreen(tagsViewModel: TagsViewModel){
     val uiData =  tagsViewModel.uiState.collectAsState().value
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val uiTagData by tagsViewModel.tagsFlow.collectAsState()
+
 
     LaunchedEffect(lifecycle) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -62,9 +62,8 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
     Column (
         modifier = Modifier.fillMaxSize()
             .background(color = themeColors().background)
-            .padding(10.dp)
+            .padding(10.dp).systemBarsPadding()
     ){
-        Spacer(modifier = Modifier.height(40.dp))
 
         Row (
             modifier = Modifier.fillMaxWidth(),
@@ -82,7 +81,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
         Spacer(modifier = Modifier.height(20.dp))
         when (val result = uiData) {
             is NetworkResponse.Success -> {
-                ShowListOfTags(tagsViewModel, result.data)
+                ShowListOfTags(tagsViewModel, result.data, uiTagData)
             }
             is NetworkResponse.Error -> {
                 ErrorPage(uiData.message)
@@ -99,7 +98,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel){
     }
 }
 @Composable
-fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>, uiTagData: List<TagEntity>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -110,11 +109,12 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>){
             count=tags.size,
         ) { index ->
                 val marked: MutableState<Boolean> =
-                    remember { mutableStateOf(tags[index].marked) }
+                    remember { mutableStateOf(tagsViewModel.isTagMarked(tags[index].slug)) }
                 Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
                         marked.value = !marked.value
-                        tagsViewModel.updateTag(tags[index])
+                        if(!marked.value) tagsViewModel.unMarkTheTag(tags[index].id)
+                        else tagsViewModel.markTheTag(tags[index])
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,
@@ -145,12 +145,12 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>){
                                 .data(tags[index].img)
                                 .crossfade(true)
                                 .build(),
+                            placeholder = painterResource(R.drawable.error_icon),
                             contentDescription = "Quote Image",
                             modifier =Modifier.width(50.dp).height(50.dp)
                         )
                         Text(text = tags[index].tag, fontSize = 20.sp)
                     }
-
             }
         }
     }

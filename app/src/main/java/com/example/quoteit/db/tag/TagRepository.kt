@@ -24,7 +24,7 @@ class TagRepository(context: Context) {
     suspend fun insert(tagsItem : TagsItem){
             tagDao.insert(
                 TagEntity(
-                    tagId = tagsItem.id,
+                    tagId = tagsItem.slug,
                     tagName =  tagsItem.tag,
                 )
             )
@@ -32,6 +32,9 @@ class TagRepository(context: Context) {
     suspend fun delete(tagEntity: TagEntity){
         tagDao.delete(tagEntity)
     }
+    suspend fun getAllTags() = tagDao.getAllTags()
+
+
 
 
 }

@@ -16,8 +16,8 @@ interface TagDao {
     suspend fun getAllTags(): List<TagEntity>
 
 
-    @Query("SELECT * FROM tagentity WHERE tag_id=:id")
-    suspend fun getTag(id: String): TagEntity?
+    @Query("SELECT * FROM tagentity WHERE tag_id=:tagId")
+    suspend fun getTag(tagId: String): TagEntity?
 
     @Insert
     suspend fun insert(vararg tag: TagEntity)

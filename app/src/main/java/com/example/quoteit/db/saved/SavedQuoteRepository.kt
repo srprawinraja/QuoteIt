@@ -1,6 +1,7 @@
 package com.example.quoteit.db.saved
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Query
 import com.example.quoteit.data.SavedQuote
 import com.example.quoteit.db.QuoteDatabaseInstance
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
 class SavedQuoteRepository (context: Context){
+    private val TAG: String = "SavedQuoteRepository"
     val db = QuoteDatabaseInstance.Companion.getInstance(context)
     val savedQuoteDao = db.savedQuote()
 
@@ -28,6 +30,7 @@ class SavedQuoteRepository (context: Context){
     }
 
     suspend fun isQuoteExist(id: String): Boolean {
+        Log.d(TAG, id+" "+savedQuoteDao.getSavedQuote(id))
         return savedQuoteDao.getSavedQuote(id) != null
     }
 

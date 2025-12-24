@@ -29,6 +29,8 @@ import com.example.quoteit.viewModels.SavedDetailViewModel
 import com.example.quoteit.viewModels.SavedViewModel
 import com.example.quoteit.viewModels.TagsViewModel
 
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,8 +88,15 @@ fun AppNavigation(
         composable("Saved"){
             SavedScreen(navController, savedViewModel)
         }
-        composable("SavedDetail"){
-            SavedDetailScreen(navController, savedDetailViewModel)
+        composable(
+            route= "SavedDetail/{tag}",
+            arguments = listOf(navArgument("tag") { type = NavType.StringType })
+        ){
+                backStackEntry ->
+            val tag = backStackEntry.arguments?.getString("tag")
+            if(tag!=null){
+                SavedDetailScreen(navController, savedDetailViewModel, tag)
+            }
         }
     }
 }
