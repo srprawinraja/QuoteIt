@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 
 
-const val BASE_URL = "https://fantastic-flexibility-production-bfef.up.railway.app"
+const val BASE_URL = "http://quoteit-env-1.eba-mecyfpmd.ap-south-1.elasticbeanstalk.com/"
 
 class ApiKeyInterceptor(private val apiKey: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -30,9 +30,6 @@ object RetroFitInstance {
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(ApiKeyInterceptor(BuildConfig.API_KEY)
         )
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .writeTimeout(15, TimeUnit.SECONDS)
         .build();
 
     val retrofit: Retrofit = Retrofit.Builder()

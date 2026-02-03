@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,19 +7,38 @@ plugins {
     alias(libs.plugins.ksp)
 
 }
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use {
+        localProperties.load(it)
+    }
+}
 
+val key = localProperties.getProperty("KEY") ?: ""
 android {
-    namespace = "com.example.quoteit"
+    namespace = "com.prawin.quoteit"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
-        applicationId = "com.example.quoteit"
+        versionName = "2.0"
+        applicationId = "com.prawin.quoteit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
+        versionCode = 5
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "API_KEY",
+            "\"$key\""
+        )
     }
 
     buildTypes {
@@ -32,37 +53,27 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
 
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
     }
 }
+kotlin {
+    jvmToolchain(11)
+}
+
 
 dependencies {
-    implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.appcheck.ktx)
-    implementation(libs.firebase.appcheck.debug)
-
-    val lifecycle_version = "2.6.2" // Check for the latest stable version
-    val  nav_version = "2.9.6"
-    val room_version = "2.6.1"
-    // implementation("com.google.mlkit:translate:17.0.0")
-    // Firebase BOM manages versions automatically
-    // Firebase BOM automatically manages versions
-    // Firebase BOM manages all versions automatically
-
-    ksp( "androidx.room:room-compiler:$room_version" ) // replaces kapt
-    implementation( "androidx.room:room-runtime:$room_version")  // core Room
-    implementation( "androidx.room:room-ktx:$room_version")      // coroutine support
-    implementation("dev.shreyaspatil:capturable:2.1.0")
-    implementation( "androidx.navigation:navigation-compose:$nav_version")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation(libs.coil.compose)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.dev.shreyaspatil.capturable)
+    implementation(libs.androidx.navigation.compose)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.com.square.retrofit.convertor.gson)
+    implementation(libs.com.square.retrofit.retrofit)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
