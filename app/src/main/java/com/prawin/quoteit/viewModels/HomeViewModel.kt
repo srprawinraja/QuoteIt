@@ -1,5 +1,6 @@
 package com.prawin.quoteit.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +15,7 @@ import com.prawin.quoteit.INTERNET_TURN_ON_REQUEST_MESSAGE
 import com.prawin.quoteit.LOADING_MESSAGE
 import com.prawin.quoteit.api.NetworkResponse
 import com.prawin.quoteit.api.RetroFitInstance
+import com.prawin.quoteit.data.ApiException
 import com.prawin.quoteit.data.Quote
 import com.prawin.quoteit.db.saved.SavedQuoteEntity
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
@@ -100,7 +102,7 @@ class HomeViewModel(
                             quoteRequestResponse = false
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
-                            //Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
+                            Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
 
                         }
                     } catch (exception: Exception){
@@ -145,7 +147,11 @@ class HomeViewModel(
                             } else {
                                 quoteRequestResponse = false
 
-                                //Log.i(TAG, "failed to update selected tag quote", ApiException(response.code().toString()+" "+response.message()))
+                                Log.i(TAG, "failed to update selected tag quote",
+                                    ApiException(
+                                        response.code().toString() + " " + response.message()
+                                    )
+                                )
 
                                 _uiState.value =
                                     NetworkResponse.ErrorQuote(
@@ -184,7 +190,7 @@ class HomeViewModel(
     ){
         viewModelScope.launch {
             try {
-               // Log.i(TAG, "saving the quote...")
+               Log.i(TAG, "saving the quote...")
              if(_uiState.value is NetworkResponse.Success  && !savedQuoteRepository.isQuoteExist(id)) {
                     savedQuoteRepository.saveQuote(
                         SavedQuoteEntity(
@@ -196,9 +202,9 @@ class HomeViewModel(
                     )
              } else {
                  if(savedQuoteRepository.isQuoteExist(id)){
-                     //Log.e(TAG, "unable to save quote already exist")
+                     Log.e(TAG, "unable to save quote already exist")
                  } else {
-                     //Log.e(TAG, "unable to save api request is not succeeded")
+                     Log.e(TAG, "unable to save api request is not succeeded")
                  }
              }
             } catch (exception: Exception){

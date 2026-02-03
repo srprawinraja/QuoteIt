@@ -1,4 +1,4 @@
-package com.example.quoteit
+package com.prawin.quoteit
 
 import org.junit.Test
 

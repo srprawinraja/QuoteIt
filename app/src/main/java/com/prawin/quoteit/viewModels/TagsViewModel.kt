@@ -36,6 +36,7 @@ class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHel
                 getAllMarkedTag()
                 if (networkHelper.isNetworkAvailable()) {
                     networkHelper.stopMonitoring()
+                        Log.d(TAG,"Made api call over tag")
                         val response: Response<List<TagsItem>> = quoteService.getAllTags()
                         if (response.isSuccessful) {
                             val body = response.body()
@@ -54,7 +55,7 @@ class TagsViewModel (val tagRepository: TagRepository, contextHelper: ContextHel
                 }
             } catch (e: Exception){
                 NetworkResponse.Error("error occurred while retrieving tags")
-               // Log.e(TAG, "failed to get list of tags", e)
+               Log.e(TAG, "failed to get list of tags", e)
             }
         }
     }
