@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
+import com.prawin.quoteit.db.tag.TagRepository
 import com.prawin.quoteit.factory.QuoteServiceFactory
 import com.prawin.quoteit.ui.screens.ListTagScreen
 import com.prawin.quoteit.ui.screens.QuoteShow
@@ -23,6 +24,7 @@ import com.prawin.quoteit.ui.screens.SavedDetailScreen
 import com.prawin.quoteit.ui.screens.SavedScreen
 import com.prawin.quoteit.ui.theme.HomeScreen
 import com.prawin.quoteit.ui.theme.QuoteItTheme
+import com.prawin.quoteit.utils.ContextHelper
 import com.prawin.quoteit.viewModels.HomeViewModel
 import com.prawin.quoteit.viewModels.QuoteShowViewModel
 import com.prawin.quoteit.viewModels.SavedDetailViewModel
@@ -82,7 +84,7 @@ fun AppNavigation(
             }
         }
         composable("Tags"){
-            ListTagScreen(tagsViewModel)
+            ListTagScreen(tagsViewModel, navController)
         }
         composable("Saved"){
             SavedScreen(navController, savedViewModel)
@@ -106,7 +108,15 @@ fun AppNavigation(
 fun HomeScreenPreview() {
     SavedScreen(navController = NavHostController(LocalContext.current), SavedViewModel(SavedQuoteRepository(LocalContext.current)))
   // QuoteShow("The fact that you aren't where you want to be should be enough motivation", QuoteShowViewModel(ContextHelper(LocalContext.current)))
-    //ListTagScreen(TagsViewModel(TagDatabaseService(app), CacheImageHelper()))
+        /* ListTagScreen(
+        tagsViewModel = TagsViewModel(
+            tagRepository = TagRepository(
+                context =  LocalContext.current
+            ),
+            contextHelper = ContextHelper( LocalContext.current)
+        ),
+        navController = navController
+    )*/
     // class TagsViewModel (val tagDatabaseService: TagDatabaseService, val cacheImageHelper: CacheImageHelper): ViewModel() {
 }
 

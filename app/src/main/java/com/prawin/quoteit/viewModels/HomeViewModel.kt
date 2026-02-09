@@ -1,10 +1,7 @@
 package com.prawin.quoteit.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -61,7 +58,6 @@ class HomeViewModel(
         updateTodayQuote()
     }
     val tagsFlow = tagRepository.tagsFlow
-    private var quoteRequestResponse = false;
     var selectedId by mutableIntStateOf(0)
 
     init{
@@ -73,7 +69,6 @@ class HomeViewModel(
             defaultLoadingQuote.copy(quote = LOADING_MESSAGE)
         )
         if(sharedPreferenceHelper.contains(todayDate)) {
-            quoteRequestResponse = true
             val json = sharedPreferenceHelper.getValue(todayDate)
             val data = gsonHelper.getObj(json, Quote::class.java)
             _uiState.value = NetworkResponse.Success(data)
@@ -87,26 +82,24 @@ class HomeViewModel(
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null) {
-                                quoteRequestResponse = true
                                 _uiState.value = NetworkResponse.Success(body)
                                 val json = gsonHelper.getJson(body)
                                 sharedPreferenceHelper.save(todayDate, json)
                             } else {
-                                quoteRequestResponse = false
                                 _uiState.value = NetworkResponse.ErrorQuote(
                                     defaultErrorQuote,
                                     response.message()
                                 )
                             }
                         } else {
-                            quoteRequestResponse = false
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
-                            Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
+                            //Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
 
                         }
                     } catch (exception: Exception){
-                        quoteRequestResponse = false
+                        _uiState.value =
+                            NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
                         //Log.e(TAG, exception.toString());
                     }
                 }
@@ -133,11 +126,9 @@ class HomeViewModel(
                             if (response.isSuccessful) {
                                 val body = response.body()
                                 if (body != null) {
-                                    quoteRequestResponse = true
                                     _uiState.value = NetworkResponse.Success(body)
 
                                 } else {
-                                    quoteRequestResponse = false
 
                                     _uiState.value = NetworkResponse.ErrorQuote(
                                         defaultErrorQuote,
@@ -145,13 +136,12 @@ class HomeViewModel(
                                     )
                                 }
                             } else {
-                                quoteRequestResponse = false
 
-                                Log.i(TAG, "failed to update selected tag quote",
+                                //Log.i(TAG, "failed to update selected tag quote",
                                     ApiException(
                                         response.code().toString() + " " + response.message()
                                     )
-                                )
+
 
                                 _uiState.value =
                                     NetworkResponse.ErrorQuote(
@@ -159,12 +149,12 @@ class HomeViewModel(
                                         response.message()
                                     )
                             }
-                        } catch (e: Exception){
+                        } catch (exception: Exception){
+                            NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
 
                         }
                     }
                 } else {
-                    quoteRequestResponse = false
 
                     _uiState.value = NetworkResponse.LoadingQuote(
                         defaultLoadingQuote.copy(quote = INTERNET_TURN_ON_REQUEST_MESSAGE)
@@ -172,7 +162,8 @@ class HomeViewModel(
                     networkHelper.startMonitoring()
                 }
             } catch (exception: Exception){
-                quoteRequestResponse = false
+                NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
+
                 //Log.e(TAG, "failed to update selected tag quote", exception);
             }
         }
@@ -180,6 +171,8 @@ class HomeViewModel(
     fun deleteTag(tagEntity: TagEntity){
         viewModelScope.launch {
             tagRepository.delete(tagEntity)
+            selectedId = 0
+            updateTodayQuote()
         }
     }
     fun saveQuote(
@@ -190,7 +183,7 @@ class HomeViewModel(
     ){
         viewModelScope.launch {
             try {
-               Log.i(TAG, "saving the quote...")
+               //Log.i(TAG, "saving the quote...")
              if(_uiState.value is NetworkResponse.Success  && !savedQuoteRepository.isQuoteExist(id)) {
                     savedQuoteRepository.saveQuote(
                         SavedQuoteEntity(
@@ -200,14 +193,9 @@ class HomeViewModel(
                             savedTagName = tag,
                         )
                     )
-             } else {
-                 if(savedQuoteRepository.isQuoteExist(id)){
-                     Log.e(TAG, "unable to save quote already exist")
-                 } else {
-                     Log.e(TAG, "unable to save api request is not succeeded")
-                 }
              }
             } catch (exception: Exception){
+                NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
                 //Log.e(TAG, "failed to save the quote", exception)
             }
         }
