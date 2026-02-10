@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit
 
 
 
-const val BASE_URL = "http://quoteit-env-1.eba-mecyfpmd.ap-south-1.elasticbeanstalk.com/"
-
+const val PROD_BASE_URL = "http://quoteit-env-1.eba-mecyfpmd.ap-south-1.elasticbeanstalk.com/"
+const val LOCAL_URL = "http://localhost:4000"
 class ApiKeyInterceptor(private val apiKey: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -33,7 +33,7 @@ object RetroFitInstance {
         .build();
 
     val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(PROD_BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

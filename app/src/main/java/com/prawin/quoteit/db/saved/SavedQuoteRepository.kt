@@ -29,4 +29,8 @@ class SavedQuoteRepository (context: Context){
         return savedQuoteDao.getSavedQuote(id) != null
     }
 
+    suspend fun deleteQuote(id: String) {
+         savedQuoteDao.deleteQuote(id)
+    }
+
 }

@@ -1,0 +1,8 @@
+stash@{0}: On baseurl: save mistake
+stash@{1}: On baseurl: save the changes
+stash@{2}: On upgrade: save1
+stash@{3}: On upgrade: save
+stash@{4}: On removeBug: some changes
+stash@{5}: On removeBug: save
+stash@{6}: On bug: save latest changes
+stash@{7}: On bug: save it

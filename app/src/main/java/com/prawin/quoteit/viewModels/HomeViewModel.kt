@@ -1,7 +1,10 @@
 package com.prawin.quoteit.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,9 +62,24 @@ class HomeViewModel(
     }
     val tagsFlow = tagRepository.tagsFlow
     var selectedId by mutableIntStateOf(0)
+    private var _marked = mutableStateOf(false)
+    val marked = _marked
 
     init{
         updateTodayQuote()
+    }
+
+    fun updateMarked(id: String){
+        viewModelScope.launch {
+            if (savedQuoteRepository.isQuoteExist(id)) {
+                _marked.value = true
+            } else {
+                _marked.value = false
+            }
+        }
+    }
+    fun changeMarked(marked: Boolean){
+        _marked.value = marked
     }
 
     fun updateTodayQuote() {
@@ -70,7 +88,8 @@ class HomeViewModel(
         )
         if(sharedPreferenceHelper.contains(todayDate)) {
             val json = sharedPreferenceHelper.getValue(todayDate)
-            val data = gsonHelper.getObj(json, Quote::class.java)
+            val data:Quote = gsonHelper.getObj(json, Quote::class.java)
+            updateMarked(data.id)
             _uiState.value = NetworkResponse.Success(data)
         }
         else {
@@ -82,6 +101,7 @@ class HomeViewModel(
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null) {
+                                updateMarked(body.id)
                                 _uiState.value = NetworkResponse.Success(body)
                                 val json = gsonHelper.getJson(body)
                                 sharedPreferenceHelper.save(todayDate, json)
@@ -98,7 +118,7 @@ class HomeViewModel(
 
                         }
                     } catch (exception: Exception){
-                        _uiState.value =
+                        uiState.value =
                             NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
                         //Log.e(TAG, exception.toString());
                     }
@@ -126,8 +146,8 @@ class HomeViewModel(
                             if (response.isSuccessful) {
                                 val body = response.body()
                                 if (body != null) {
+                                    updateMarked(body.id)
                                     _uiState.value = NetworkResponse.Success(body)
-
                                 } else {
 
                                     _uiState.value = NetworkResponse.ErrorQuote(
@@ -151,7 +171,6 @@ class HomeViewModel(
                             }
                         } catch (exception: Exception){
                             NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
-
                         }
                     }
                 } else {
@@ -175,6 +194,11 @@ class HomeViewModel(
             updateTodayQuote()
         }
     }
+    fun deleteQuote(id: String){
+        viewModelScope.launch {
+            savedQuoteRepository.deleteQuote(id)
+        }
+    }
     fun saveQuote(
         id: String,
         quote: String,
@@ -193,8 +217,10 @@ class HomeViewModel(
                             savedTagName = tag,
                         )
                     )
+                 changeMarked(true)
+
              }
-            } catch (exception: Exception){
+            }  catch (exception: Exception){
                 NetworkResponse.ErrorQuote(defaultErrorQuote, exception.message.toString())
                 //Log.e(TAG, "failed to save the quote", exception)
             }

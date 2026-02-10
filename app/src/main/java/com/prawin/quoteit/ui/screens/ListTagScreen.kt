@@ -81,6 +81,37 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
             when (val result = uiData) {
                 is NetworkResponse.Success -> {
                     ShowListOfTags(tagsViewModel, result.data, uiTagData)
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(bottom = 70.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Button(
+                            onClick = {
+                                tagsViewModel.commitChanges()
+                                navController.popBackStack()
+                            },
+                            colors = ButtonColors(
+                                containerColor = colorResource(R.color.green),
+                                contentColor = themeColors().text,
+                                disabledContentColor = themeColors().text,
+                                disabledContainerColor = colorResource(R.color.green)
+                            ),
+                            modifier = Modifier.border(
+                                border = BorderStroke(1.dp, themeColors().lightBorderColor),
+                                shape = CircleShape
+                            ),
+
+
+                            ) {
+                            Text(
+                                modifier = Modifier.wrapContentSize(),
+                                text = "save",
+                                color = themeColors().text,
+                                fontSize = 25.sp
+                            )
+                        }
+
+                    }
                 }
 
                 is NetworkResponse.Error -> {
@@ -94,37 +125,6 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
                 else -> {}
             }
 
-            Box(
-                modifier = Modifier.fillMaxSize().padding(bottom = 70.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Button(
-                    onClick = {
-                        tagsViewModel.commitChanges()
-                        navController.popBackStack()
-                    },
-                    colors = ButtonColors(
-                        containerColor = colorResource(R.color.green),
-                        contentColor = themeColors().text,
-                        disabledContentColor = themeColors().text,
-                        disabledContainerColor = colorResource(R.color.green)
-                    ),
-                    modifier = Modifier.border(
-                        border = BorderStroke(1.dp, themeColors().lightBorderColor),
-                        shape = CircleShape
-                    ),
-
-
-                    ) {
-                    Text(
-                        modifier = Modifier.wrapContentSize(),
-                        text = "save",
-                        color = themeColors().text,
-                        fontSize = 25.sp
-                    )
-                }
-
-            }
         }
 
 

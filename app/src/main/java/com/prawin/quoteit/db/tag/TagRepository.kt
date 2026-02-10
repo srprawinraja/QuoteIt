@@ -39,7 +39,8 @@ class TagRepository(context: Context) {
     }
 
 
-
-
+    suspend fun getTag(tagId: String): TagEntity? {
+        return tagDao.getTag(tagId)
+    }
 
 }
