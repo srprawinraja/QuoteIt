@@ -51,6 +51,7 @@ fun HomeScreen(
 ) {
     val uiData =  homeViewModel.uiState.collectAsState().value
     val uiTagData by homeViewModel.tagsFlow.collectAsState()
+    val marked by homeViewModel.marked
 
     Column (
         modifier = Modifier.
@@ -169,6 +170,7 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
+
             when (val result = uiData) {
                 is NetworkResponse.Success -> {
                     ShowQuote(
@@ -177,7 +179,8 @@ fun HomeScreen(
                         uiData,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag
+                        result.data.tag,
+                        marked
                     )
                 }
 
@@ -188,7 +191,8 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag
+                        result.data.tag,
+                        marked
                     )
                 }
 
@@ -199,7 +203,8 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag
+                        result.data.tag,
+                        marked
                     )
                 }
 
@@ -219,7 +224,8 @@ fun ShowQuote(
     uiData: NetworkResponse.Success<Quote>?,
     quote: String,
     author: String,
-    tag: String
+    tag: String,
+    marked: Boolean
 ){
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -237,7 +243,7 @@ fun ShowQuote(
         Text(modifier= Modifier.wrapContentSize(), text=tag, color=themeColors().lightText, fontSize = 15.sp)
     }
     Spacer(modifier = Modifier.height(20.dp))
-    MiddleRowButtons(navController, uiData, homeViewModel, quote)
+    MiddleRowButtons(navController, uiData, homeViewModel, quote, marked)
 }
 
 @Composable
@@ -245,7 +251,8 @@ fun MiddleRowButtons(
     navController: NavHostController,
     uiData: NetworkResponse.Success<Quote>?,
     homeViewModel: HomeViewModel,
-    quote: String
+    quote: String,
+    marked: Boolean,
 ){
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -269,8 +276,24 @@ fun MiddleRowButtons(
         Spacer(modifier = Modifier.width(30.dp))
         IconButton(
             onClick = {
-                uiData?.let {
-                    homeViewModel.saveQuote(uiData.data.id, uiData.data.quote, uiData.data.author, uiData.data.tag)
+                if(!marked) {
+                    uiData?.let {
+                        homeViewModel.saveQuote(
+                            uiData.data.id,
+                            uiData.data.quote,
+                            uiData.data.author,
+                            uiData.data.tag
+                        )
+                        homeViewModel.changeMarked(true)
+
+                    }
+                } else {
+                    uiData?.let {
+                    homeViewModel.deleteQuote(uiData.data.id)
+                        homeViewModel.changeMarked(true)
+                        homeViewModel.changeMarked(false)
+
+                    }
                 }
             },
             modifier = Modifier
@@ -278,7 +301,11 @@ fun MiddleRowButtons(
                 .background(color = themeColors().surface, shape = CircleShape)
         ) {
             Icon(
-                painter = painterResource(R.drawable.bookmark_icon),
+                painter = painterResource(
+                    if(marked)
+                        R.drawable.save_bookmark_icon
+                    else R.drawable.unsave_bookmark_icon
+                ),
                 contentDescription = "save",
                 tint = themeColors().text,
                 modifier = Modifier.size(30.dp)

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import retrofit2.http.DELETE
 
 @Dao
 interface SavedQuoteDao {
@@ -15,4 +16,7 @@ interface SavedQuoteDao {
 
     @Query("SELECT * FROM SavedQuoteEntity WHERE saved_quote_id=:id")
     suspend fun getSavedQuote(id: String): SavedQuoteEntity?
+
+    @Query("DELETE FROM SavedQuoteEntity WHERE saved_quote_id=:id")
+    suspend fun deleteQuote(id: String)
 }

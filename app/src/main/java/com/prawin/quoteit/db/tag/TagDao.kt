@@ -19,8 +19,13 @@ interface TagDao {
     suspend fun getTag(tagId: String): TagEntity?
 
     @Insert
-    suspend fun insert(vararg tag: TagEntity)
+    suspend fun insert(tag: TagEntity)
+    @Insert
+    suspend fun insertAll(tags: List<TagEntity>)
 
     @Delete
-    suspend fun delete(vararg tag: TagEntity)
+    suspend fun delete(tag: TagEntity)
+
+    @Query("DELETE FROM TagEntity")
+    suspend fun deleteAll()
 }

@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-
 }
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -25,11 +24,10 @@ android {
     }
 
     defaultConfig {
-        versionName = "2.0"
         applicationId = "com.prawin.quoteit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
+        versionCode = 9
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -65,6 +63,7 @@ kotlin {
 
 
 dependencies {
+
     implementation(libs.coil.compose)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
