@@ -45,7 +45,7 @@ import coil.compose.AsyncImage
 
 import com.prawin.quoteit.R
 import com.prawin.quoteit.api.NetworkResponse
-import com.prawin.quoteit.data.TagsItem
+import com.prawin.quoteit.data.model.Tag
 import com.prawin.quoteit.db.tag.TagEntity
 import com.prawin.quoteit.ui.theme.themeColors
 import com.prawin.quoteit.viewModels.TagsViewModel
@@ -135,7 +135,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
 
 }
 @Composable
-fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>, uiTagData: List<TagEntity>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<Tag>, uiTagData: List<TagEntity>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -153,7 +153,9 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<TagsItem>, uiTagData
                         marked.value = !marked.value
 
                         if(marked.value) tagsViewModel.addSelectedTag(tags[index])
-                        else tagsViewModel.removeSelectedTag(tags[index])
+                        else {
+                            tagsViewModel.removeSelectedTag(tags[index])
+                        }
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,

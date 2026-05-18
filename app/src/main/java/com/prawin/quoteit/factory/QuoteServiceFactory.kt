@@ -3,7 +3,7 @@ package com.prawin.quoteit.factory
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.prawin.quoteit.data.Quote
+import com.prawin.quoteit.data.model.Quote
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
 import com.prawin.quoteit.db.tag.TagRepository
 import com.prawin.quoteit.utils.ContextHelper

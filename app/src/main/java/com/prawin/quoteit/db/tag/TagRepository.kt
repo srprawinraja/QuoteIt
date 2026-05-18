@@ -1,8 +1,8 @@
 package com.prawin.quoteit.db.tag
 
 import android.content.Context
-import com.prawin.quoteit.data.TagsItem
-import com.prawin.quoteit.data.toTagEntity
+import com.prawin.quoteit.data.model.Tag
+import com.prawin.quoteit.data.model.toTagEntity
 import com.prawin.quoteit.db.QuoteDatabaseInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +21,8 @@ class TagRepository(context: Context) {
             initialValue = emptyList())
 
 
-    suspend fun insertAll(tagsItems : List<TagsItem>){
-        tagDao.deleteAll()
+    suspend fun insertAll(tagsItems : List<Tag>){
+//        tagDao.deleteAll()
         val tagEntity = mutableListOf<TagEntity>()
         for (tagItem in tagsItems){
             tagEntity.add(tagItem.toTagEntity())
