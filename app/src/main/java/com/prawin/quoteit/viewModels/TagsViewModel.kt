@@ -5,8 +5,8 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prawin.quoteit.api.NetworkResponse
-import com.prawin.quoteit.api.RetroFitInstance
-import com.prawin.quoteit.data.TagsItem
+import com.prawin.quoteit.data.firebase.FireStoreRepository
+import com.prawin.quoteit.data.model.Tag
 import com.prawin.quoteit.db.tag.TagEntity
 import com.prawin.quoteit.db.tag.TagRepository
 import com.prawin.quoteit.utils.ContextHelper
@@ -18,15 +18,14 @@ import retrofit2.Response
 private const val TAG = "TagsViewModel"
 
 class TagsViewModel (val tagRepository: TagRepository, val contextHelper: ContextHelper): ViewModel() {
-    private val _uiState = MutableStateFlow<NetworkResponse<List<TagsItem>>>(NetworkResponse.Loading)
-    val uiState: MutableStateFlow<NetworkResponse<List<TagsItem>>> = _uiState
+    private val _uiState = MutableStateFlow<NetworkResponse<List<Tag>>>(NetworkResponse.Loading)
+    val uiState: MutableStateFlow<NetworkResponse<List<Tag>>> = _uiState
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
         getListOfTags()
     }
     val tagsFlow = tagRepository.tagsFlow
-    val quoteService = RetroFitInstance.quoteService
 
-    private val selectedTagsItem = mutableListOf<TagsItem>()
+    private val selectedTagsItem = mutableListOf<Tag>()
 
     init {
         getListOfTags()
@@ -37,46 +36,46 @@ class TagsViewModel (val tagRepository: TagRepository, val contextHelper: Contex
             try {
                 if (networkHelper.isNetworkAvailable()) {
                     networkHelper.stopMonitoring()
-                        val response: Response<List<TagsItem>> = quoteService.getAllTags()
-                        if (response.isSuccessful) {
-                            val body = response.body()
-                            if (body != null) {
-                                _uiState.value = NetworkResponse.Success(body)
-                            } else {
-                                NetworkResponse.Error("no tags available")
-                            }
+                        val tags: List<Tag> = FireStoreRepository.getTags()
+
+                       // Log.d(TAG, tags.toString())
+                        if(tags.isNotEmpty()){
+                                _uiState.value = NetworkResponse.Success(tags)
                         } else {
                             NetworkResponse.Error("no tags available")
                         }
-
-                } else {
+                }
+                 else {
                     NetworkResponse.Error("no internet")
                     networkHelper.startMonitoring()
                 }
             } catch (e: Exception){
+               // Log.d(TAG, e.toString())
                 NetworkResponse.Error("error occurred while retrieving tags")
             }
         }
     }
 
-    fun isTagMarked(tagId: String): Boolean{
-        return tagsFlow.value.any { tag -> tag.tagId == tagId }
+    fun isTagMarked(slug: String): Boolean{
+        return tagsFlow.value.any { tag -> tag.slug == slug }
     }
 
-    fun addSelectedTag(tag: TagsItem) {
+    fun addSelectedTag(tag: Tag) {
+        //
+        // Log.d(TAG+"ADD", tag.toString())
         if(!isTagSelected(tag)){
             selectedTagsItem.add(tag)
         }
     }
-    fun removeSelectedTag(tag: TagsItem) {
+    fun removeSelectedTag(tag: Tag) {
         if(isTagSelected(tag)){
             selectedTagsItem.remove(tag)
         }
     }
 
-    fun isTagSelected(selectedTag: TagsItem): Boolean{
+    fun isTagSelected(selectedTag: Tag): Boolean{
         for(tag in selectedTagsItem){
-            if(tag.id == selectedTag.id){
+            if(tag.documentId == selectedTag.documentId){
                 return true
             }
         }
@@ -85,7 +84,7 @@ class TagsViewModel (val tagRepository: TagRepository, val contextHelper: Contex
 
     fun commitChanges(){
         viewModelScope.launch {
-            tagRepository.deleteAll()
+//            tagRepository.deleteAll()
             tagRepository.insertAll(selectedTagsItem)
             selectedTagsItem.clear()
             Toast.makeText(contextHelper.getContext(), "saved successfully", Toast.LENGTH_SHORT).show()

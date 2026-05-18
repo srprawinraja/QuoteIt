@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +13,8 @@ import com.prawin.quoteit.ERROR_MESSAGE
 import com.prawin.quoteit.INTERNET_TURN_ON_REQUEST_MESSAGE
 import com.prawin.quoteit.LOADING_MESSAGE
 import com.prawin.quoteit.api.NetworkResponse
-import com.prawin.quoteit.api.RetroFitInstance
-import com.prawin.quoteit.data.ApiException
-import com.prawin.quoteit.data.Quote
+import com.prawin.quoteit.data.firebase.FireStoreRepository
+import com.prawin.quoteit.data.model.Quote
 import com.prawin.quoteit.db.saved.SavedQuoteEntity
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
 import com.prawin.quoteit.db.tag.TagEntity
@@ -43,19 +41,18 @@ class HomeViewModel(
         "1",
         DEFAULT_AUTHOR_NAME,
         ERROR_MESSAGE,
-        "1",
-        DEFAULT_TAG
+        0.0,
+        listOf(DEFAULT_TAG)
     )
     val defaultLoadingQuote =  Quote(
         "2",
         DEFAULT_AUTHOR_NAME,
         LOADING_MESSAGE,
-        "2",
-        DEFAULT_TAG
+        0.0,
+        listOf(DEFAULT_TAG)
     )
     private val _uiState = MutableStateFlow<NetworkResponse<Quote>>(NetworkResponse.LoadingQuote(defaultLoadingQuote))
     val uiState: MutableStateFlow<NetworkResponse<Quote>> = _uiState
-    val quoteService = RetroFitInstance.quoteService
     val todayDate: String = DateHelper.getDate()
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
         updateTodayQuote()
@@ -89,7 +86,7 @@ class HomeViewModel(
         if(sharedPreferenceHelper.contains(todayDate)) {
             val json = sharedPreferenceHelper.getValue(todayDate)
             val data:Quote = gsonHelper.getObj(json, Quote::class.java)
-            updateMarked(data.id)
+            updateMarked(data.documentId)
             _uiState.value = NetworkResponse.Success(data)
         }
         else {
@@ -97,25 +94,17 @@ class HomeViewModel(
                 networkHelper.stopMonitoring()
                 viewModelScope.launch {
                     try {
-                        val response: Response<Quote> = quoteService.getRandomQuote()
-                        if (response.isSuccessful) {
-                            val body = response.body()
-                            if (body != null) {
-                                updateMarked(body.id)
-                                _uiState.value = NetworkResponse.Success(body)
-                                val json = gsonHelper.getJson(body)
-                                sharedPreferenceHelper.save(todayDate, json)
-                            } else {
-                                _uiState.value = NetworkResponse.ErrorQuote(
-                                    defaultErrorQuote,
-                                    response.message()
-                                )
-                            }
+                        val quote: Quote? = FireStoreRepository.getRandomQuote()
+                       // Log.i(TAG, quote.toString());
+
+                        if (quote!=null) {
+                             updateMarked(quote.documentId)
+                            _uiState.value = NetworkResponse.Success(quote)
+                            val json = gsonHelper.getJson(quote)
+                            sharedPreferenceHelper.save(todayDate, json)
                         } else {
                             _uiState.value =
-                                NetworkResponse.ErrorQuote(defaultErrorQuote, response.message())
-                            //Log.i(TAG, "failed to update today quote", ApiException(response.code().toString()+" "+response.message()))
-
+                                NetworkResponse.ErrorQuote(defaultErrorQuote, "failed to update today quote")
                         }
                     } catch (exception: Exception){
                         uiState.value =
@@ -142,31 +131,21 @@ class HomeViewModel(
                     networkHelper.stopMonitoring()
                     viewModelScope.launch {
                         try {
-                            val response: Response<Quote> = quoteService.getRandomQuoteByTag(tagId)
-                            if (response.isSuccessful) {
-                                val body = response.body()
-                                if (body != null) {
-                                    updateMarked(body.id)
-                                    _uiState.value = NetworkResponse.Success(body)
-                                } else {
+                            val quote: Quote? = FireStoreRepository.getRandomQuoteBySlug(tagId)
+                            if (quote != null) {
+                                updateMarked(quote.documentId)
+                                _uiState.value = NetworkResponse.Success(quote)
 
-                                    _uiState.value = NetworkResponse.ErrorQuote(
-                                        defaultErrorQuote,
-                                        response.message()
-                                    )
-                                }
                             } else {
 
                                 //Log.i(TAG, "failed to update selected tag quote",
-                                    ApiException(
-                                        response.code().toString() + " " + response.message()
-                                    )
+
 
 
                                 _uiState.value =
                                     NetworkResponse.ErrorQuote(
                                         defaultErrorQuote,
-                                        response.message()
+                                        "failed to update selected tag quote"
                                     )
                             }
                         } catch (exception: Exception){

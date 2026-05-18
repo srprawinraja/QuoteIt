@@ -10,4 +10,5 @@ class GsonHelper <T>{
     fun getObj(json: String,  classOf: Class<T>):T{
         return gson.fromJson(json, classOf)
     }
+
 }

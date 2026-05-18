@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.prawin.quoteit.R
 import com.prawin.quoteit.api.NetworkResponse
-import com.prawin.quoteit.data.Quote
+import com.prawin.quoteit.data.model.Quote
 import com.prawin.quoteit.viewModels.HomeViewModel
 
 @Composable
@@ -118,7 +118,7 @@ fun HomeScreen(
                         Button(
                             onClick = {
                                 homeViewModel.selectedId = tag.id
-                                homeViewModel.updateSelectedTagQuote(tag.tagId)
+                                homeViewModel.updateSelectedTagQuote(tag.slug)
                             },
                             colors = ButtonColors(
                                 containerColor = themeColors().background,
@@ -179,7 +179,7 @@ fun HomeScreen(
                         uiData,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag,
+                        if(result.data.slugs.size==0)  "" else result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
                         marked
                     )
                 }
@@ -191,7 +191,7 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag,
+                        result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
                         marked
                     )
                 }
@@ -203,7 +203,7 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.tag,
+                        result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
                         marked
                     )
                 }
@@ -279,17 +279,17 @@ fun MiddleRowButtons(
                 if(!marked) {
                     uiData?.let {
                         homeViewModel.saveQuote(
-                            uiData.data.id,
+                            uiData.data.documentId,
                             uiData.data.quote,
                             uiData.data.author,
-                            uiData.data.tag
+                            uiData.data.slugs[0]
                         )
                         homeViewModel.changeMarked(true)
 
                     }
                 } else {
                     uiData?.let {
-                    homeViewModel.deleteQuote(uiData.data.id)
+                    homeViewModel.deleteQuote(uiData.data.documentId)
                         homeViewModel.changeMarked(true)
                         homeViewModel.changeMarked(false)
 

@@ -9,7 +9,7 @@ class SavedDetailViewModel (savedQuoteRepository: SavedQuoteRepository): ViewMod
     fun getTagBasedSavedQuotes(tag: String): List<SavedQuoteEntity> {
         val tagBasedQuote: MutableList<SavedQuoteEntity> = mutableListOf()
         for(data in savedQuoteFlow.value){
-            if(data.savedTagName.equals(tag)){
+            if(data.savedTagName == tag){
                 tagBasedQuote.add(data)
             }
         }

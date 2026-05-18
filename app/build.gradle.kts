@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -27,8 +28,8 @@ android {
         applicationId = "com.prawin.quoteit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.0"
+        versionCode = 12
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -63,7 +64,8 @@ kotlin {
 
 
 dependencies {
-
+    implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+    implementation("com.google.firebase:firebase-firestore")
     implementation(libs.coil.compose)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
