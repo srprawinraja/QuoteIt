@@ -13,6 +13,8 @@ data class Tag (
 )
 
 fun Tag.toTagEntity() = TagEntity(
-    slug = this.slug,
-    tagName = this.tag,
+    slug = slug,
+    img =  img,
+    tagName = tag,
+
 )

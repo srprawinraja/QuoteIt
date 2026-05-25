@@ -17,13 +17,26 @@ class QuoteDatabaseInstance {
                 )
             }
         }
+        val migration2To3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    "ALTER TABLE tagentity ADD COLUMN img TEXT"
+                )
+
+                db.execSQL(
+                    "ALTER TABLE tagentity ADD COLUMN isMarked INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
         fun getInstance(context: Context): QuoteDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     QuoteDatabase::class.java,
                     "app_db"
-                ).addMigrations(migration1To2).build().also { INSTANCE = it }
+                ).addMigrations(migration1To2)
+                    .addMigrations(migration2To3).build().also { INSTANCE = it }
             }
         }
     }

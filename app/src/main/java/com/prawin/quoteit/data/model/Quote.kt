@@ -9,5 +9,6 @@ data class Quote(
     val author: String = "",
     val quote: String = "",
     val rand: Double = 0.0,
-    val slugs: List<String> = emptyList()
+    val slugs: List<String> = emptyList(),
+    val tagName: String = ""
 )

@@ -28,6 +28,8 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,6 +42,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 
@@ -52,8 +57,7 @@ import com.prawin.quoteit.viewModels.TagsViewModel
 
 @Composable
 fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController){
-    val uiData =  tagsViewModel.uiState.collectAsState().value
-    val uiTagData by tagsViewModel.tagsFlow.collectAsState()
+    val uiData =  tagsViewModel.tagFlow.collectAsState().value
 
     Column (
         modifier = Modifier.fillMaxSize()
@@ -78,9 +82,9 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            when (val result = uiData) {
-                is NetworkResponse.Success -> {
-                    ShowListOfTags(tagsViewModel, result.data, uiTagData)
+//            when (val result = uiData) {
+//                is NetworkResponse.Success -> {
+                 ShowListOfTags(tagsViewModel, uiData)
                     Box(
                         modifier = Modifier.fillMaxSize().padding(bottom = 70.dp),
                         contentAlignment = Alignment.BottomCenter
@@ -112,18 +116,18 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
                         }
 
                     }
-                }
-
-                is NetworkResponse.Error -> {
-                    ErrorPage(uiData.message)
-                }
-
-                is NetworkResponse.Loading -> {
-                    LoadingPage()
-                }
-
-                else -> {}
-            }
+//                }
+//
+//                is NetworkResponse.Error -> {
+//                    ErrorPage(uiData.message)
+//                }
+//
+//                is NetworkResponse.Loading -> {
+//                    LoadingPage()
+//                }
+//
+//                else -> {}
+//            }
 
         }
 
@@ -135,7 +139,7 @@ fun ListTagScreen(tagsViewModel: TagsViewModel, navController: NavHostController
 
 }
 @Composable
-fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<Tag>, uiTagData: List<TagEntity>){
+fun ShowListOfTags(tagsViewModel: TagsViewModel, tagData: List<TagEntity>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Or GridCells.Adaptive(100.dp)
         contentPadding = PaddingValues(8.dp),
@@ -144,18 +148,14 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<Tag>, uiTagData: Lis
     ) {
 
         items(
-            count=tags.size,
+            count=tagData.size,
         ) { index ->
-                val marked: MutableState<Boolean> =
-                    remember { mutableStateOf(tagsViewModel.isTagMarked(tags[index].slug)) }
+                val marked: MutableState<Boolean> = mutableStateOf(tagData[index].isMarked)
+
                 Card(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable(onClick = {
                         marked.value = !marked.value
-
-                        if(marked.value) tagsViewModel.addSelectedTag(tags[index])
-                        else {
-                            tagsViewModel.removeSelectedTag(tags[index])
-                        }
+                        tagsViewModel.updateChanges(tagData[index])
                     }),
                     colors = CardColors(
                         containerColor = themeColors().surface,
@@ -182,11 +182,11 @@ fun ShowListOfTags(tagsViewModel: TagsViewModel, tags: List<Tag>, uiTagData: Lis
                             }
                         }
                         AsyncImage(
-                            model = tags[index].img,
+                            model = tagData[index].img,
                             contentDescription = "Quote Image",
                             modifier =Modifier.width(50.dp).height(50.dp)
                         )
-                        Text(text = tags[index].tag, fontSize = 20.sp)
+                        Text(text = tagData[index].tagName, fontSize = 20.sp)
                     }
             }
         }
