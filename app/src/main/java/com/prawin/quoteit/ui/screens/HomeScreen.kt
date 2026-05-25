@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +51,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel
 ) {
     val uiData =  homeViewModel.uiState.collectAsState().value
-    val uiTagData by homeViewModel.tagsFlow.collectAsState()
+    val uiTagData by homeViewModel.markedTagsFlow.collectAsState()
     val marked by homeViewModel.marked
 
     Column (
@@ -148,7 +149,7 @@ fun HomeScreen(
                             if (homeViewModel.selectedId == tag.id) {
                                 Icon(
                                     modifier = Modifier.clickable(onClick = {
-                                        homeViewModel.deleteTag(tag)
+                                        homeViewModel.updateTag(tag)
                                     }),
                                     painter = painterResource(R.drawable.cancel_icon),
                                     contentDescription = "cancel icon",
@@ -179,7 +180,7 @@ fun HomeScreen(
                         uiData,
                         result.data.quote,
                         result.data.author,
-                        if(result.data.slugs.size==0)  "" else result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
+                        result.data.tagName,
                         marked
                     )
                 }
@@ -191,7 +192,7 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
+                        result.data.tagName,
                         marked
                     )
                 }
@@ -203,7 +204,7 @@ fun HomeScreen(
                         null,
                         result.data.quote,
                         result.data.author,
-                        result.data.slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() },
+                        result.data.tagName,
                         marked
                     )
                 }
@@ -285,14 +286,12 @@ fun MiddleRowButtons(
                             uiData.data.slugs[0]
                         )
                         homeViewModel.changeMarked(true)
-
                     }
                 } else {
                     uiData?.let {
                     homeViewModel.deleteQuote(uiData.data.documentId)
                         homeViewModel.changeMarked(true)
                         homeViewModel.changeMarked(false)
-
                     }
                 }
             },

@@ -1,6 +1,5 @@
 package com.prawin.quoteit.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +24,9 @@ import com.prawin.quoteit.utils.GsonHelper
 import com.prawin.quoteit.utils.NetworkHelper
 import com.prawin.quoteit.utils.SharedPreferenceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
 private const val TAG = "HomeViewModel"
 class HomeViewModel(
@@ -42,22 +42,32 @@ class HomeViewModel(
         DEFAULT_AUTHOR_NAME,
         ERROR_MESSAGE,
         0.0,
-        listOf(DEFAULT_TAG)
+        listOf(DEFAULT_TAG),
+        DEFAULT_TAG
     )
     val defaultLoadingQuote =  Quote(
         "2",
         DEFAULT_AUTHOR_NAME,
         LOADING_MESSAGE,
         0.0,
-        listOf(DEFAULT_TAG)
+        listOf(DEFAULT_TAG),
+        DEFAULT_TAG
     )
+
+
+    val markedTagsFlow = tagRepository.getMarkedTags()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
     private val _uiState = MutableStateFlow<NetworkResponse<Quote>>(NetworkResponse.LoadingQuote(defaultLoadingQuote))
     val uiState: MutableStateFlow<NetworkResponse<Quote>> = _uiState
     val todayDate: String = DateHelper.getDate()
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
         updateTodayQuote()
     }
-    val tagsFlow = tagRepository.tagsFlow
     var selectedId by mutableIntStateOf(0)
     private var _marked = mutableStateOf(false)
     val marked = _marked
@@ -68,11 +78,7 @@ class HomeViewModel(
 
     fun updateMarked(id: String){
         viewModelScope.launch {
-            if (savedQuoteRepository.isQuoteExist(id)) {
-                _marked.value = true
-            } else {
-                _marked.value = false
-            }
+            _marked.value = savedQuoteRepository.isQuoteExist(id)
         }
     }
     fun changeMarked(marked: Boolean){
@@ -121,7 +127,7 @@ class HomeViewModel(
         }
     }
 
-    fun updateSelectedTagQuote(tagId: String){
+    fun updateSelectedTagQuote(slug: String){
         _uiState.value = NetworkResponse.LoadingQuote(
             defaultLoadingQuote.copy(quote = LOADING_MESSAGE)
         )
@@ -131,7 +137,7 @@ class HomeViewModel(
                     networkHelper.stopMonitoring()
                     viewModelScope.launch {
                         try {
-                            val quote: Quote? = FireStoreRepository.getRandomQuoteBySlug(tagId)
+                            val quote: Quote? = FireStoreRepository.getRandomQuoteBySlug(slug)
                             if (quote != null) {
                                 updateMarked(quote.documentId)
                                 _uiState.value = NetworkResponse.Success(quote)
@@ -166,9 +172,10 @@ class HomeViewModel(
             }
         }
     }
-    fun deleteTag(tagEntity: TagEntity){
+    fun updateTag(tagEntity: TagEntity){
         viewModelScope.launch {
-            tagRepository.delete(tagEntity)
+            tagEntity.isMarked = !tagEntity.isMarked
+            tagRepository.updateMarked(listOf(tagEntity))
             selectedId = 0
             updateTodayQuote()
         }

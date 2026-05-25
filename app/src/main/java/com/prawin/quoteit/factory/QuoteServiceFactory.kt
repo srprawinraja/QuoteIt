@@ -36,7 +36,7 @@ class QuoteServiceFactory( private val context: Context) : ViewModelProvider.Fac
             return QuoteShowViewModel(contextHelper) as T
         }  else if (modelClass.isAssignableFrom(TagsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TagsViewModel(tagRepository, contextHelper) as T
+            return TagsViewModel(tagRepository, contextHelper, sharedPreferenceHelper) as T
         } else if (modelClass.isAssignableFrom(SavedViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return SavedViewModel(savedQuoteRepository) as T

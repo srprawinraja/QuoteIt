@@ -7,20 +7,50 @@ import com.prawin.quoteit.db.QuoteDatabaseInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class TagRepository(context: Context) {
     val db = QuoteDatabaseInstance.Companion.getInstance(context)
     val tagDao = db.tagDao()
 
-    val tagsFlow = tagDao.getAllTagsFlow()
+
+
+
+
+
+
+    /*
+     val tagsFlow = tagDao.getAllTagsFlow()
         .stateIn(
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-            started = SharingStarted.Companion.Eagerly,
-            initialValue = emptyList())
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+     */
 
 
+
+    fun getMarkedTags(): Flow<List<TagEntity>> =   tagDao.getMarkedTags()
+
+    fun getAllTagsFlow(): Flow<List<TagEntity>> =   tagDao.getAllTagsFlow()
+
+    suspend fun getAllTags() = tagDao.getAllTags()
+
+
+    suspend fun updateMarked(tagEntity: List<TagEntity>){
+        val tagsItems = tagDao.getAllTags()
+        for(tag in tagsItems){
+            for(changedTag in tagEntity){
+                if(tag.id == changedTag.id){
+                    tagDao.updateMark(changedTag)
+                }
+            }
+        }
+    }
     suspend fun insertAll(tagsItems : List<Tag>){
 //        tagDao.deleteAll()
         val tagEntity = mutableListOf<TagEntity>()
@@ -31,16 +61,4 @@ class TagRepository(context: Context) {
                 tagEntity
         )
     }
-    suspend fun delete(tagEntity: TagEntity){
-        tagDao.delete(tagEntity)
-    }
-    suspend fun deleteAll(){
-        tagDao.deleteAll()
-    }
-
-
-    suspend fun getTag(tagId: String): TagEntity? {
-        return tagDao.getTag(tagId)
-    }
-
 }

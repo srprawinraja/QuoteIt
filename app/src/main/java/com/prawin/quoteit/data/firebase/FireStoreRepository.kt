@@ -8,7 +8,9 @@ import com.prawin.quoteit.ui.screens.QuoteShow
 import kotlinx.coroutines.tasks.await
 
 object FireStoreRepository {
-    private val db = FirebaseFirestore.getInstance()
+    private val db by lazy {
+        FirebaseFirestore.getInstance()
+    }
     suspend fun getRandomQuoteBySlug(slug: String): Quote?{
         var result: QuerySnapshot = db.collection("quotes")
             .whereArrayContains("slugs", slug)
@@ -16,16 +18,9 @@ object FireStoreRepository {
             .orderBy("rand")
             .limit(1)
             .get().await()
-        if(!result.isEmpty){
-            return result.documents.firstOrNull()?.toObject(Quote::class.java)
-        }
-        result = db.collection("quotes")
-            .whereArrayContains("slugs", slug)
-            .whereLessThan("rand", Math.random())
-            .orderBy("rand")
-            .limit(1)
-            .get().await()
-        return result.documents.firstOrNull()?.toObject(Quote::class.java)
+
+        return result.documents.firstOrNull()?.toObject(Quote::class.java)?.copy(tagName =
+            slug.replace('-',' ').replaceFirstChar { it.uppercase() })
     }
     suspend fun getRandomQuote(): Quote?{
         val result: QuerySnapshot = db.collection("quotes")
@@ -33,7 +28,7 @@ object FireStoreRepository {
             .orderBy("rand")
             .limit(1)
             .get().await()
-        return result.documents.firstOrNull()?.toObject(Quote::class.java)
+        return result.documents.firstOrNull()?.toObject(Quote::class.java)?.run{copy(tagName = slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() })}
     }
 
     suspend fun getTags(): List<Tag>{

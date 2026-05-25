@@ -24,7 +24,6 @@ import com.prawin.quoteit.ui.screens.SavedDetailScreen
 import com.prawin.quoteit.ui.screens.SavedScreen
 import com.prawin.quoteit.ui.theme.HomeScreen
 import com.prawin.quoteit.ui.theme.QuoteItTheme
-import com.prawin.quoteit.utils.ContextHelper
 import com.prawin.quoteit.viewModels.HomeViewModel
 import com.prawin.quoteit.viewModels.QuoteShowViewModel
 import com.prawin.quoteit.viewModels.SavedDetailViewModel
@@ -38,16 +37,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             QuoteItTheme {
-                val homeViewModel: HomeViewModel by viewModels() {
+                val homeViewModel: HomeViewModel by viewModels {
                     QuoteServiceFactory(this)
                 }
-                val quoteShowViewModel: QuoteShowViewModel by viewModels() {
+                val quoteShowViewModel: QuoteShowViewModel by viewModels {
                     QuoteServiceFactory(this)
                 }
-                val tagsViewModel: TagsViewModel by viewModels() {
+                val tagsViewModel: TagsViewModel by viewModels {
                     QuoteServiceFactory(this)
                 }
-                val savedViewModel: SavedViewModel by viewModels() {
+                val savedViewModel: SavedViewModel by viewModels {
                     QuoteServiceFactory(this)
                 }
                 val savedDetailViewModel: SavedDetailViewModel by viewModels() {
