@@ -21,7 +21,7 @@ class QuoteDatabaseInstance {
             override fun migrate(db: SupportSQLiteDatabase) {
 
                 db.execSQL(
-                    "ALTER TABLE tagentity ADD COLUMN img TEXT"
+                    "ALTER TABLE tagentity ADD COLUMN img TEXT NOT NULL DEFAULT ''"
                 )
 
                 db.execSQL(
