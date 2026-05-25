@@ -28,7 +28,7 @@ android {
         applicationId = "com.prawin.quoteit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 12
+        versionCode = 14
         versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
