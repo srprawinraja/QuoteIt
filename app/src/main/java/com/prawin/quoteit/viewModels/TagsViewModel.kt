@@ -44,6 +44,7 @@ class TagsViewModel(
             if(sharedPreferenceHelper.contains("tag")) {
                 _uiState.value = NetworkResponse.Success(tagRepository.getAllTags())
             } else {
+                tagRepository.deleteAll()
                 try {
                     if (networkHelper.isNetworkAvailable()) {
                         networkHelper.stopMonitoring()

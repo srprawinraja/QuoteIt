@@ -16,5 +16,5 @@ fun Tag.toTagEntity() = TagEntity(
     slug = slug,
     img =  img,
     tagName = tag,
-
 )
+
