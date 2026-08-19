@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 val savedDetailViewModel: SavedDetailViewModel by viewModels() {
                     QuoteServiceFactory(this)
                 }
-                AppNavigation( homeViewModel, quoteShowViewModel, tagsViewModel, savedViewModel, savedDetailViewModel)
+                AppNavigation(homeViewModel, quoteShowViewModel, tagsViewModel, savedViewModel, savedDetailViewModel)
             }
         }
 
