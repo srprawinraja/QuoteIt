@@ -61,4 +61,7 @@ class TagRepository(context: Context) {
                 tagEntity
         )
     }
+    suspend fun deleteAll(){
+        tagDao.deleteAll()
+    }
 }
