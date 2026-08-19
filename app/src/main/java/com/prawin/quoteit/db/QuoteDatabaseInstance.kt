@@ -20,10 +20,12 @@ class QuoteDatabaseInstance {
         val migration2To3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
 
+                // Add img column (String → TEXT)
                 db.execSQL(
                     "ALTER TABLE tagentity ADD COLUMN img TEXT NOT NULL DEFAULT ''"
                 )
 
+                // Add isMarked column (Boolean → INTEGER in SQLite)
                 db.execSQL(
                     "ALTER TABLE tagentity ADD COLUMN isMarked INTEGER NOT NULL DEFAULT 0"
                 )
