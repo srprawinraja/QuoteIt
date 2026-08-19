@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,15 +66,15 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth().wrapContentSize(),
             horizontalArrangement = Arrangement.Center,
         ){
-            Image(painter = painterResource(R.drawable.quote_left_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = -5.dp, y = -20.dp))
+            Image(painter = painterResource(R.drawable.quote_left_side_icon), contentDescription = stringResource(R.string.content_desc_top_bar_logo), modifier = Modifier.offset(x = -5.dp, y = -20.dp))
 
             Text(
-                "QuoteIt",
+                stringResource(R.string.app_name),
                 color = themeColors().text,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
-            Image(painter = painterResource(R.drawable.quote_right_side_icon), contentDescription = "top bar logo", modifier = Modifier.offset(x = 5.dp, y = -20.dp))
+            Image(painter = painterResource(R.drawable.quote_right_side_icon), contentDescription = stringResource(R.string.content_desc_top_bar_logo), modifier = Modifier.offset(x = 5.dp, y = -20.dp))
 
         }
             Spacer(modifier = Modifier.height(80.dp))
@@ -107,7 +108,7 @@ fun HomeScreen(
                 ) {
                     Text(
                         modifier = Modifier.wrapContentSize(),
-                        text = "Today",
+                        text = stringResource(R.string.today),
                         color = themeColors().text,
                         fontSize = 15.sp
                     )
@@ -152,7 +153,7 @@ fun HomeScreen(
                                         homeViewModel.updateTag(tag)
                                     }),
                                     painter = painterResource(R.drawable.cancel_icon),
-                                    contentDescription = "cancel icon",
+                                    contentDescription = stringResource(R.string.content_desc_cancel_icon),
                                     tint = themeColors().text
                                 )
                             }
@@ -162,7 +163,7 @@ fun HomeScreen(
                 }
                 Icon(
                     painter = painterResource(R.drawable.add_icon),
-                    contentDescription = "add",
+                    contentDescription = stringResource(R.string.content_desc_add),
                     tint = themeColors().text,
                     modifier = Modifier.size(45.dp).clickable(onClick = {
                         navController.navigate("Tags")
@@ -269,7 +270,7 @@ fun MiddleRowButtons(
         ) {
             Icon(
                 painter = painterResource(R.drawable.book_icon),
-                contentDescription = "save",
+                contentDescription = stringResource(R.string.content_desc_save),
                 tint = themeColors().text,
                 modifier = Modifier.size(30.dp)
             )
@@ -305,7 +306,7 @@ fun MiddleRowButtons(
                         R.drawable.save_bookmark_icon
                     else R.drawable.unsave_bookmark_icon
                 ),
-                contentDescription = "save",
+                contentDescription = stringResource(R.string.content_desc_save),
                 tint = themeColors().text,
                 modifier = Modifier.size(30.dp)
             )
@@ -319,7 +320,7 @@ fun MiddleRowButtons(
         ) {
             Icon(
                 painter = painterResource(R.drawable.share_icon),
-                contentDescription = "Share",
+                contentDescription = stringResource(R.string.content_desc_share),
                 tint = themeColors().text,
                 modifier = Modifier.size(30.dp)
             )
