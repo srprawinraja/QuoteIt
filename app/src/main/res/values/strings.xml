@@ -8,4 +8,5 @@
     <string name="content_desc_add">add</string>
     <string name="content_desc_save">save</string>
     <string name="content_desc_share">Share</string>
+    <string name="default_notification_channel_id">daily_quotes</string>
 </resources>
