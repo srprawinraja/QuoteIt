@@ -1,5 +1,11 @@
 package com.prawin.quoteit.ui.theme
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,23 +33,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.prawin.quoteit.R
 import com.prawin.quoteit.api.NetworkResponse
 import com.prawin.quoteit.data.model.Quote
+import com.prawin.quoteit.ui.components.DialogComponent
+import com.prawin.quoteit.ui.components.RationaleDialogComponent
 import com.prawin.quoteit.viewModels.HomeViewModel
 
 @Composable
@@ -51,9 +62,74 @@ fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel
 ) {
+
+    val context = LocalContext.current
     val uiData =  homeViewModel.uiState.collectAsState().value
     val uiTagData by homeViewModel.markedTagsFlow.collectAsState()
     val marked by homeViewModel.marked
+    var showRationaleDialogComponent by remember {  mutableStateOf(false)}
+    var showDialogComponent by remember {  mutableStateOf(false)}
+
+    val activity = context as? Activity
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+       if(isGranted){
+
+       } else {
+           showDialogComponent = true
+       }
+    }
+
+    LaunchedEffect(Unit) {
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            val permissionGranted =
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+
+            if (!permissionGranted) {
+
+                val shouldShowRationale =
+                    activity?.shouldShowRequestPermissionRationale(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == true
+
+                if (shouldShowRationale) {
+                    showRationaleDialogComponent = true
+                } else {
+                     permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    if(showDialogComponent){
+        DialogComponent(
+            title = "Notifications are turned off",
+            description = "You won't receive notifications from this app. You can enable notifications anytime in your device settings.",
+            onDismiss = { showDialogComponent = false }
+        )
+    }
+    if(showRationaleDialogComponent) {
+        RationaleDialogComponent(
+            title ="Don't miss your daily quotes",
+            description = "Allow notifications to receive your daily quotes and a little inspiration throughout your day.",
+            onConfirm = {
+                showRationaleDialogComponent = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        ) {
+            showRationaleDialogComponent = false
+        }
+    }
 
     Column (
         modifier = Modifier.

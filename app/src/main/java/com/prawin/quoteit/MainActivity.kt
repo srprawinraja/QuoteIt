@@ -1,10 +1,15 @@
 package com.prawin.quoteit
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -15,8 +20,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
-import com.prawin.quoteit.db.tag.TagRepository
 import com.prawin.quoteit.factory.QuoteServiceFactory
 import com.prawin.quoteit.ui.screens.ListTagScreen
 import com.prawin.quoteit.ui.screens.QuoteShow
@@ -32,9 +38,21 @@ import com.prawin.quoteit.viewModels.TagsViewModel
 
 
 class MainActivity : ComponentActivity() {
+
+    private val TAG = "MainActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        Firebase.messaging.subscribeToTopic("daily_quotes")
+            .addOnCompleteListener { task ->
+                var msg = "Subscribed"
+                if (!task.isSuccessful) {
+                    msg = "Subscribe failed"
+                }
+                Log.d(TAG, msg)
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            }
         setContent {
             QuoteItTheme {
                 val homeViewModel: HomeViewModel by viewModels {
@@ -69,7 +87,9 @@ fun AppNavigation(
     val navController = rememberNavController()
     NavHost(navController, startDestination = "Home" ){
         composable("Home"){
-            HomeScreen(navController, homeViewModel)
+            HomeScreen(
+                navController, homeViewModel,
+            )
         }
         composable(
             route= "Share/{quote}",
