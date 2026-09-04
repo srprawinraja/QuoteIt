@@ -3,16 +3,18 @@ package com.prawin.quoteit.data.firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.prawin.quoteit.data.model.Quote
+import com.prawin.quoteit.data.model.Streak
 import com.prawin.quoteit.data.model.Tag
 import com.prawin.quoteit.ui.screens.QuoteShow
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
 
 object FireStoreRepository {
     private val db by lazy {
         FirebaseFirestore.getInstance()
     }
     suspend fun getRandomQuoteBySlug(slug: String): Quote?{
-        var result: QuerySnapshot = db.collection("quotes")
+        val result: QuerySnapshot = db.collection("quotes")
             .whereArrayContains("slugs", slug)
             .whereGreaterThanOrEqualTo("rand", Math.random())
             .orderBy("rand")
@@ -28,7 +30,12 @@ object FireStoreRepository {
             .orderBy("rand")
             .limit(1)
             .get().await()
-        return result.documents.firstOrNull()?.toObject(Quote::class.java)?.run{copy(tagName = slugs[0].replace('-',' ').replaceFirstChar { it.uppercase() })}
+        return result.documents.firstOrNull()
+            ?.toObject(Quote::class.java)
+            ?.run{copy(tagName = slugs[0].replace('-',' ')
+                .replaceFirstChar
+                { it.uppercase() })
+            }
     }
 
     suspend fun getTags(): List<Tag>{
@@ -37,5 +44,18 @@ object FireStoreRepository {
         return result.documents.mapNotNull { it -> it.toObject(Tag::class.java) }
     }
 
-
+    fun updateStreak(uId: String, streak: Streak){
+        db.collection("users").document(uId).set(streak)
+    }
+    suspend fun getStreak(uId: String): Streak?{
+         val result = db.collection("users").document(uId)
+            .get().await()
+        return if (result.exists()) {
+            result.toObject(Streak::class.java)
+        } else {
+            null
+        }
+    }
 }
+
+

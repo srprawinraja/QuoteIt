@@ -4,7 +4,7 @@ junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 firebaseCommonKtx = "22.0.1"
-agp = "8.5.2"
+agp = "8.13.2"
 kotlin = "2.4.10"
 coreKtx = "1.13.1"
 lifecycleRuntimeKtx = "2.8.7"
@@ -19,6 +19,7 @@ capturable = "3.0.1"
 retrofit = "2.11.0"
 gson = "2.11.0"
 firebaseFirestoreKtx = "33.5.1"
+runtime = "1.12.0"
 
 [libraries]
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
@@ -50,6 +51,7 @@ com-square-retrofit-convertor-gson = { module = "com.squareup.retrofit2:converte
 com-square-retrofit-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 
 [plugins]

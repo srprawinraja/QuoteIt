@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.type.DateTime
 import com.prawin.quoteit.DEFAULT_AUTHOR_NAME
 import com.prawin.quoteit.DEFAULT_TAG
 import com.prawin.quoteit.ERROR_MESSAGE
@@ -14,6 +15,7 @@ import com.prawin.quoteit.LOADING_MESSAGE
 import com.prawin.quoteit.api.NetworkResponse
 import com.prawin.quoteit.data.firebase.FireStoreRepository
 import com.prawin.quoteit.data.model.Quote
+import com.prawin.quoteit.data.model.Streak
 import com.prawin.quoteit.db.saved.SavedQuoteEntity
 import com.prawin.quoteit.db.saved.SavedQuoteRepository
 import com.prawin.quoteit.db.tag.TagEntity
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 private const val TAG = "HomeViewModel"
 class HomeViewModel(
@@ -64,6 +67,8 @@ class HomeViewModel(
 
     private val _uiState = MutableStateFlow<NetworkResponse<Quote>>(NetworkResponse.LoadingQuote(defaultLoadingQuote))
     val uiState: MutableStateFlow<NetworkResponse<Quote>> = _uiState
+    private val _uiStreakState = MutableStateFlow<NetworkResponse<Int>>(NetworkResponse.Loading)
+    val uiStreakState: MutableStateFlow<NetworkResponse<Int>> = _uiStreakState
     val todayDate: String = DateHelper.getDate()
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
         updateTodayQuote()
@@ -212,6 +217,22 @@ class HomeViewModel(
             }
         }
     }
+    suspend fun getStreak(uId: String){
+        viewModelScope.launch {
+            val todayDate = LocalDate.now()
+            val result = FireStoreRepository.getStreak(uId)
+            if(result==null || result.lastCompletedDate != todayDate.minusDays(1).toString()){
+                FireStoreRepository.updateStreak(uId, Streak(1, todayDate.toString()))
+                sharedPreferenceHelper.saveCurrentStreak(todayDate.toString(), "1")
+                _uiStreakState.value = NetworkResponse.Success(1)
+            } else {
+                FireStoreRepository.updateStreak(uId, Streak(result.currentStreak+1, LocalDate.now().toString()))
+                sharedPreferenceHelper.saveCurrentStreak(todayDate.toString(), (result.currentStreak+1).toString())
+                _uiStreakState.value = NetworkResponse.Success(result.currentStreak+1)
+            }
+        }
+    }
 }
+
 
 

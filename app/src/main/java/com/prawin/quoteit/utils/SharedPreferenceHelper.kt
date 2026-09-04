@@ -12,6 +12,14 @@ class SharedPreferenceHelper(context: Context){
         sharedPreferences.edit { putString(key, value) }
     }
 
+
+    fun saveCurrentStreak(key: String, value: String) {
+        sharedPreferences.edit { putString("$key current", value) }
+    }
+
+    fun getSaveCurrentStreak(key: String): String? {
+        return sharedPreferences.getString("$key current", null)
+    }
     fun getValue(key: String): String {
         return sharedPreferences.getString(key, null) ?:""
     }

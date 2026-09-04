@@ -1,4 +1,4 @@
-package com.prawin.quoteit.ui.theme
+package com.prawin.quoteit.ui.screens
 
 import android.Manifest
 import android.app.Activity
@@ -13,6 +13,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.prawin.quoteit.R
+import com.prawin.quoteit.ui.theme.themeColors
 import com.prawin.quoteit.api.NetworkResponse
 import com.prawin.quoteit.data.model.Quote
 import com.prawin.quoteit.ui.components.DialogComponent
@@ -60,27 +62,29 @@ import com.prawin.quoteit.viewModels.HomeViewModel
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    uId: String
 ) {
 
     val context = LocalContext.current
-    val uiData =  homeViewModel.uiState.collectAsState().value
+    val uiData = homeViewModel.uiState.collectAsState().value
     val uiTagData by homeViewModel.markedTagsFlow.collectAsState()
+    val uiStreakData by homeViewModel.uiStreakState.collectAsState()
+
     val marked by homeViewModel.marked
-    var showRationaleDialogComponent by remember {  mutableStateOf(false)}
-    var showDialogComponent by remember {  mutableStateOf(false)}
+    var showRationaleDialogComponent by remember { mutableStateOf(false) }
+    var showDialogComponent by remember { mutableStateOf(false) }
 
     val activity = context as? Activity
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-       if(isGranted){
-
-       } else {
-           showDialogComponent = true
-       }
+        if (!isGranted) {
+            showDialogComponent = true
+        }
     }
+
 
     LaunchedEffect(Unit) {
 
@@ -103,22 +107,24 @@ fun HomeScreen(
                 if (shouldShowRationale) {
                     showRationaleDialogComponent = true
                 } else {
-                     permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
+            } else {
+                homeViewModel.getStreak(uId)
             }
         }
     }
 
-    if(showDialogComponent){
+    if (showDialogComponent) {
         DialogComponent(
             title = "Notifications are turned off",
             description = "You won't receive notifications from this app. You can enable notifications anytime in your device settings.",
             onDismiss = { showDialogComponent = false }
         )
     }
-    if(showRationaleDialogComponent) {
+    if (showRationaleDialogComponent) {
         RationaleDialogComponent(
-            title ="Don't miss your daily quotes",
+            title = "Don't miss your daily quotes",
             description = "Allow notifications to receive your daily quotes and a little inspiration throughout your day.",
             onConfirm = {
                 showRationaleDialogComponent = false
@@ -131,165 +137,212 @@ fun HomeScreen(
         }
     }
 
-    Column (
-        modifier = Modifier.
-        fillMaxSize().
-        background(color = themeColors().background)
-            .padding(30.dp).systemBarsPadding(),
-    ){
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = themeColors().background)
+            .padding(30.dp)
+            .systemBarsPadding(),
+    ) {
 
-        Row (
-            modifier = Modifier.fillMaxWidth().wrapContentSize(),
-            horizontalArrangement = Arrangement.Center,
-        ){
-            Image(painter = painterResource(R.drawable.quote_left_side_icon), contentDescription = stringResource(R.string.content_desc_top_bar_logo), modifier = Modifier.offset(x = -5.dp, y = -20.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier.align(Alignment.Center),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.quote_left_side_icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .offset(x = (-4).dp, y = (-12).dp)
+                        .size(20.dp),
+                )
+                Text(
+                    text = stringResource(R.string.app_name),
+                    color = themeColors().text,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = FontFamily.Serif
+                )
+                Image(
+                    painter = painterResource(R.drawable.quote_right_side_icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .offset(x = 4.dp, y = (-12).dp)
+                        .size(20.dp)
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .background(color = themeColors().surface, shape = CircleShape)
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                when(val result = uiStreakData){
+                   is NetworkResponse.Success -> {
+                       Image(
+                           painter = painterResource(R.drawable.ic_fire_logo),
+                           contentDescription = null,
+                           modifier = Modifier.size(24.dp)
+                       )
+                       Spacer(modifier = Modifier.width(4.dp))
+                       Text(
+                           text = result.data.toString(),
+                           color = themeColors().text,
+                           fontSize = 18.sp,
+                           fontWeight = FontWeight.Bold
+                       )
+                    }
+                    else -> {}
+                }
 
-            Text(
-                stringResource(R.string.app_name),
-                color = themeColors().text,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Image(painter = painterResource(R.drawable.quote_right_side_icon), contentDescription = stringResource(R.string.content_desc_top_bar_logo), modifier = Modifier.offset(x = 5.dp, y = -20.dp))
+            }
 
         }
-            Spacer(modifier = Modifier.height(80.dp))
-            Row (
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                verticalAlignment = Alignment.CenterVertically
-            ){
+        Spacer(modifier = Modifier.height(80.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-                Button(
-                    onClick = {
-                        homeViewModel.selectedId = 0
-                        homeViewModel.updateTodayQuote()
-                    },
-                    colors = ButtonColors(
-                        containerColor = themeColors().background,
-                        contentColor = themeColors().text,
-                        disabledContentColor = themeColors().text,
-                        disabledContainerColor = themeColors().background
-                    ),
-                    modifier = Modifier.then(
-                        if (homeViewModel.selectedId == 0) {
-                            Modifier.border(
-                                border = BorderStroke(1.dp, themeColors().border),
-                                shape = CircleShape
-                            )
-                        } else  Modifier.border(
-                            border = BorderStroke(1.dp, themeColors().lightBorderColor),
+            Button(
+                onClick = {
+                    homeViewModel.selectedId = 0
+                    homeViewModel.updateTodayQuote()
+                },
+                colors = ButtonColors(
+                    containerColor = themeColors().background,
+                    contentColor = themeColors().text,
+                    disabledContentColor = themeColors().text,
+                    disabledContainerColor = themeColors().background
+                ),
+                modifier = Modifier.then(
+                    if (homeViewModel.selectedId == 0) {
+                        Modifier.border(
+                            border = BorderStroke(1.dp, themeColors().border),
                             shape = CircleShape
                         )
+                    } else Modifier.border(
+                        border = BorderStroke(1.dp, themeColors().lightBorderColor),
+                        shape = CircleShape
                     )
-                ) {
-                    Text(
-                        modifier = Modifier.wrapContentSize(),
-                        text = stringResource(R.string.today),
-                        color = themeColors().text,
-                        fontSize = 15.sp
-                    )
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                uiTagData.map { tag->
-                    val mark = remember{ mutableStateOf(true)}
-                    if(mark.value){
-                        Button(
-                            onClick = {
-                                homeViewModel.selectedId = tag.id
-                                homeViewModel.updateSelectedTagQuote(tag.slug)
-                            },
-                            colors = ButtonColors(
-                                containerColor = themeColors().background,
-                                contentColor = themeColors().text,
-                                disabledContentColor = themeColors().text,
-                                disabledContainerColor = themeColors().background
-                            ),
-                            modifier = Modifier.then(
-                                if (homeViewModel.selectedId == tag.id) {
-                                    Modifier.border(
-                                        border = BorderStroke(1.dp, themeColors().border),
-                                        shape = CircleShape
-                                    )// Color(0xFF2C2F36)
-                                } else  Modifier.border(
-                                    border = BorderStroke(1.dp, themeColors().lightBorderColor),
-                                    shape = CircleShape
-                                )
-                            )
-                        ) {
-                            Text(
-                                modifier = Modifier.wrapContentSize(),
-                                text = tag.tagName,
-                                color = themeColors().text,
-                                fontSize = 15.sp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
+                )
+            ) {
+                Text(
+                    modifier = Modifier.wrapContentSize(),
+                    text = stringResource(R.string.today),
+                    color = themeColors().text,
+                    fontSize = 15.sp
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            uiTagData.map { tag ->
+                val mark = remember { mutableStateOf(true) }
+                if (mark.value) {
+                    Button(
+                        onClick = {
+                            homeViewModel.selectedId = tag.id
+                            homeViewModel.updateSelectedTagQuote(tag.slug)
+                        },
+                        colors = ButtonColors(
+                            containerColor = themeColors().background,
+                            contentColor = themeColors().text,
+                            disabledContentColor = themeColors().text,
+                            disabledContainerColor = themeColors().background
+                        ),
+                        modifier = Modifier.then(
                             if (homeViewModel.selectedId == tag.id) {
-                                Icon(
-                                    modifier = Modifier.clickable(onClick = {
-                                        homeViewModel.updateTag(tag)
-                                    }),
-                                    painter = painterResource(R.drawable.cancel_icon),
-                                    contentDescription = stringResource(R.string.content_desc_cancel_icon),
-                                    tint = themeColors().text
-                                )
-                            }
-                        }
+                                Modifier.border(
+                                    border = BorderStroke(1.dp, themeColors().border),
+                                    shape = CircleShape
+                                )// Color(0xFF2C2F36)
+                            } else Modifier.border(
+                                border = BorderStroke(1.dp, themeColors().lightBorderColor),
+                                shape = CircleShape
+                            )
+                        )
+                    ) {
+                        Text(
+                            modifier = Modifier.wrapContentSize(),
+                            text = tag.tagName,
+                            color = themeColors().text,
+                            fontSize = 15.sp
+                        )
                         Spacer(modifier = Modifier.width(10.dp))
+                        if (homeViewModel.selectedId == tag.id) {
+                            Icon(
+                                modifier = Modifier.clickable(onClick = {
+                                    homeViewModel.updateTag(tag)
+                                }),
+                                painter = painterResource(R.drawable.cancel_icon),
+                                contentDescription = stringResource(R.string.content_desc_cancel_icon),
+                                tint = themeColors().text
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
-                Icon(
-                    painter = painterResource(R.drawable.add_icon),
-                    contentDescription = stringResource(R.string.content_desc_add),
-                    tint = themeColors().text,
-                    modifier = Modifier.size(45.dp).clickable(onClick = {
+            }
+            Icon(
+                painter = painterResource(R.drawable.add_icon),
+                contentDescription = stringResource(R.string.content_desc_add),
+                tint = themeColors().text,
+                modifier = Modifier
+                    .size(45.dp)
+                    .clickable(onClick = {
                         navController.navigate("Tags")
                     })
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        when (val result = uiData) {
+            is NetworkResponse.Success -> {
+                ShowQuote(
+                    navController,
+                    homeViewModel,
+                    uiData,
+                    result.data.quote,
+                    result.data.author,
+                    result.data.tagName,
+                    marked
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            when (val result = uiData) {
-                is NetworkResponse.Success -> {
-                    ShowQuote(
-                        navController,
-                        homeViewModel,
-                        uiData,
-                        result.data.quote,
-                        result.data.author,
-                        result.data.tagName,
-                        marked
-                    )
-                }
-
-                is NetworkResponse.ErrorQuote -> {
-                    ShowQuote(
-                        navController,
-                        homeViewModel,
-                        null,
-                        result.data.quote,
-                        result.data.author,
-                        result.data.tagName,
-                        marked
-                    )
-                }
-
-                is NetworkResponse.LoadingQuote -> {
-                    ShowQuote(
-                        navController,
-                        homeViewModel,
-                        null,
-                        result.data.quote,
-                        result.data.author,
-                        result.data.tagName,
-                        marked
-                    )
-                }
-
-                else -> {
-
-                }
+            is NetworkResponse.ErrorQuote -> {
+                ShowQuote(
+                    navController,
+                    homeViewModel,
+                    null,
+                    result.data.quote,
+                    result.data.author,
+                    result.data.tagName,
+                    marked
+                )
             }
+
+            is NetworkResponse.LoadingQuote -> {
+                ShowQuote(
+                    navController,
+                    homeViewModel,
+                    null,
+                    result.data.quote,
+                    result.data.author,
+                    result.data.tagName,
+                    marked
+                )
+            }
+
+            else -> {
+
+            }
+        }
 
 
     }
@@ -304,23 +357,53 @@ fun ShowQuote(
     author: String,
     tag: String,
     marked: Boolean
-){
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
+        Image(
+            painter = painterResource(R.drawable.quote_left_side_icon),
+            contentDescription = null,
+            modifier = Modifier.size(36.dp)
+        )
         Text(
             text = quote,
-            fontSize = 30.sp,
+            fontSize = 32.sp,
             color = themeColors().text,
             fontFamily = FontFamily.Serif,
-            lineHeight = 35.sp,
-            modifier = Modifier.fillMaxWidth()
+            lineHeight = 40.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
-        Spacer(modifier = Modifier.height(25.dp))
-        Text(modifier= Modifier.wrapContentSize(), text=author.uppercase(), color = themeColors().text, fontSize = 20.sp)
-        Text(modifier= Modifier.wrapContentSize(), text=tag, color=themeColors().lightText, fontSize = 15.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Image(
+                painter = painterResource(R.drawable.quote_right_side_icon),
+                contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            modifier = Modifier.wrapContentSize(),
+            text = author.uppercase(),
+            color = themeColors().text,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            modifier = Modifier.wrapContentSize(),
+            text = tag,
+            color = themeColors().lightText,
+            fontSize = 16.sp
+        )
     }
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(30.dp))
     MiddleRowButtons(navController, uiData, homeViewModel, quote, marked)
 }
 
@@ -331,14 +414,14 @@ fun MiddleRowButtons(
     homeViewModel: HomeViewModel,
     quote: String,
     marked: Boolean,
-){
-    Row (
+) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
-    ){
+    ) {
         IconButton(
             onClick = {
-                    navController.navigate("Saved")
+                navController.navigate("Saved")
             },
             modifier = Modifier
                 .size(40.dp)
@@ -354,7 +437,7 @@ fun MiddleRowButtons(
         Spacer(modifier = Modifier.width(30.dp))
         IconButton(
             onClick = {
-                if(!marked) {
+                if (!marked) {
                     uiData?.let {
                         homeViewModel.saveQuote(
                             uiData.data.documentId,
@@ -366,7 +449,7 @@ fun MiddleRowButtons(
                     }
                 } else {
                     uiData?.let {
-                    homeViewModel.deleteQuote(uiData.data.documentId)
+                        homeViewModel.deleteQuote(uiData.data.documentId)
                         homeViewModel.changeMarked(true)
                         homeViewModel.changeMarked(false)
                     }
@@ -378,7 +461,7 @@ fun MiddleRowButtons(
         ) {
             Icon(
                 painter = painterResource(
-                    if(marked)
+                    if (marked)
                         R.drawable.save_bookmark_icon
                     else R.drawable.unsave_bookmark_icon
                 ),

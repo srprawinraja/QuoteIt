@@ -18,7 +18,7 @@ if (localPropertiesFile.exists()) {
 val key = localProperties.getProperty("KEY") ?: ""
 android {
     namespace = "com.prawin.quoteit"
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         buildConfig = true
@@ -65,9 +65,11 @@ kotlin {
 
 dependencies {
     implementation(platform(libs.firebase.bom))
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
+    implementation("com.google.firebase:firebase-auth")
     implementation(libs.coil.compose)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
