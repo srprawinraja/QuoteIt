@@ -1,5 +1,9 @@
 package com.prawin.quoteit.viewModels
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,13 +31,16 @@ import com.prawin.quoteit.utils.NetworkHelper
 import com.prawin.quoteit.utils.SharedPreferenceHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
+import java.util.Calendar
 
 private const val TAG = "HomeViewModel"
 class HomeViewModel(
-    contextHelper: ContextHelper,
+    val contextHelper: ContextHelper,
     val sharedPreferenceHelper: SharedPreferenceHelper,
     val gsonHelper: GsonHelper<Quote>,
     val tagRepository: TagRepository,
@@ -67,11 +74,13 @@ class HomeViewModel(
 
     private val _uiState = MutableStateFlow<NetworkResponse<Quote>>(NetworkResponse.LoadingQuote(defaultLoadingQuote))
     val uiState: MutableStateFlow<NetworkResponse<Quote>> = _uiState
-    private val _uiStreakState = MutableStateFlow<NetworkResponse<Int>>(NetworkResponse.Loading)
-    val uiStreakState: MutableStateFlow<NetworkResponse<Int>> = _uiStreakState
+    private val _streak = MutableStateFlow(1)
+    val streak = _streak.asStateFlow()
     val todayDate: String = DateHelper.getDate()
+
     private val networkHelper: NetworkHelper = NetworkHelper(contextHelper){
         updateTodayQuote()
+
     }
     var selectedId by mutableIntStateOf(0)
     private var _marked = mutableStateOf(false)
@@ -79,6 +88,7 @@ class HomeViewModel(
 
     init{
         updateTodayQuote()
+       // loadQuotes()
     }
 
     fun updateMarked(id: String){
@@ -94,25 +104,25 @@ class HomeViewModel(
         _uiState.value = NetworkResponse.LoadingQuote(
             defaultLoadingQuote.copy(quote = LOADING_MESSAGE)
         )
-        if(sharedPreferenceHelper.contains(todayDate)) {
-            val json = sharedPreferenceHelper.getValue(todayDate)
+        val json = sharedPreferenceHelper.getValue(todayDate)
+        if(json != null){
             val data:Quote = gsonHelper.getObj(json, Quote::class.java)
             updateMarked(data.documentId)
             _uiState.value = NetworkResponse.Success(data)
-        }
-        else {
+        } else {
             if(networkHelper.isNetworkAvailable()) {
                 networkHelper.stopMonitoring()
                 viewModelScope.launch {
                     try {
-                        val quote: Quote? = FireStoreRepository.getRandomQuote()
-                       // Log.i(TAG, quote.toString());
+                        val quotes: List<Quote> = FireStoreRepository.getNRandomQuotes(2)
 
-                        if (quote!=null) {
-                             updateMarked(quote.documentId)
-                            _uiState.value = NetworkResponse.Success(quote)
-                            val json = gsonHelper.getJson(quote)
-                            sharedPreferenceHelper.save(todayDate, json)
+                        if (quotes.isNotEmpty()) {
+                            val todayQuote = quotes[0]
+                            val tomorrowQuote = quotes[1]
+                             updateMarked(todayQuote.documentId)
+                            _uiState.value = NetworkResponse.Success(todayQuote)
+                            sharedPreferenceHelper.save(todayDate, gsonHelper.getJson(todayQuote))
+                            sharedPreferenceHelper.save(todayDate, gsonHelper.getJson(tomorrowQuote))
                         } else {
                             _uiState.value =
                                 NetworkResponse.ErrorQuote(defaultErrorQuote, "failed to update today quote")
@@ -217,22 +227,34 @@ class HomeViewModel(
             }
         }
     }
-    suspend fun getStreak(uId: String){
+     fun getStreak(uId: String){
         viewModelScope.launch {
-            val todayDate = LocalDate.now()
-            val result = FireStoreRepository.getStreak(uId)
-            if(result==null || result.lastCompletedDate != todayDate.minusDays(1).toString()){
-                FireStoreRepository.updateStreak(uId, Streak(1, todayDate.toString()))
-                sharedPreferenceHelper.saveCurrentStreak(todayDate.toString(), "1")
-                _uiStreakState.value = NetworkResponse.Success(1)
-            } else {
-                FireStoreRepository.updateStreak(uId, Streak(result.currentStreak+1, LocalDate.now().toString()))
-                sharedPreferenceHelper.saveCurrentStreak(todayDate.toString(), (result.currentStreak+1).toString())
-                _uiStreakState.value = NetworkResponse.Success(result.currentStreak+1)
-            }
+                val todayDate = LocalDate.now()
+                val key = "$todayDate streak"
+                val result = FireStoreRepository.getStreak(uId)
+                val streak = sharedPreferenceHelper.getValue(key = key)
+                if (streak!=null) {
+                    _streak.value = streak.toInt()
+                } else if (result == null || result.lastCompletedDate != todayDate.minusDays(1)
+                        .toString()
+                ) {
+                    FireStoreRepository.updateStreak(uId, Streak(1, todayDate.toString()))
+                    sharedPreferenceHelper.save(key, "1")
+                } else {
+                    FireStoreRepository.updateStreak(
+                        uId,
+                        Streak(result.currentStreak + 1, LocalDate.now().toString())
+                    )
+                    sharedPreferenceHelper.save(key, (result.currentStreak + 1).toString())
+                    _streak.value = result.currentStreak + 1
+                }
+
         }
     }
+
 }
+
+
 
 
 

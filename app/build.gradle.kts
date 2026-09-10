@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
@@ -13,6 +12,11 @@ if (localPropertiesFile.exists()) {
     localPropertiesFile.inputStream().use {
         localProperties.load(it)
     }
+}
+
+
+kotlin {
+    jvmToolchain(17)
 }
 
 val key = localProperties.getProperty("KEY") ?: ""
@@ -50,26 +54,28 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-
     buildFeatures {
         compose = true
     }
 }
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 
 dependencies {
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.compose.ui)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
-    implementation("com.google.firebase:firebase-auth")
+    implementation(libs.firebase.auth)
     implementation(libs.coil.compose)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)

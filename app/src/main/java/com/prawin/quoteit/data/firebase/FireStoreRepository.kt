@@ -37,11 +37,18 @@ object FireStoreRepository {
                 { it.uppercase() })
             }
     }
-
+    suspend fun getNRandomQuotes(n: Long): List<Quote>{
+        val result: QuerySnapshot = db.collection("quotes")
+            .whereGreaterThanOrEqualTo("rand", Math.random())
+            .limit(n)
+            .orderBy("rand")
+            .get().await()
+        return result.documents.mapNotNull { it.toObject(Quote::class.java) }
+    }
     suspend fun getTags(): List<Tag>{
         val result: QuerySnapshot = db.collection("tags")
             .get().await()
-        return result.documents.mapNotNull { it -> it.toObject(Tag::class.java) }
+        return result.documents.mapNotNull { it.toObject(Tag::class.java) }
     }
 
     fun updateStreak(uId: String, streak: Streak){

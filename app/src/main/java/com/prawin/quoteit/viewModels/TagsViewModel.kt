@@ -41,7 +41,8 @@ class TagsViewModel(
         )
     fun getListOfTags(){
         viewModelScope.launch {
-            if(sharedPreferenceHelper.contains("tag")) {
+            val tag = sharedPreferenceHelper.getValue("tag")
+            if(tag!=null) {
                 _uiState.value = NetworkResponse.Success(tagRepository.getAllTags())
             } else {
                 tagRepository.deleteAll()

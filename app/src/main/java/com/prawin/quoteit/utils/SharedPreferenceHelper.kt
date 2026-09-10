@@ -13,17 +13,8 @@ class SharedPreferenceHelper(context: Context){
     }
 
 
-    fun saveCurrentStreak(key: String, value: String) {
-        sharedPreferences.edit { putString("$key current", value) }
+    fun getValue(key: String): String? {
+        return sharedPreferences.getString(key, null)
     }
 
-    fun getSaveCurrentStreak(key: String): String? {
-        return sharedPreferences.getString("$key current", null)
-    }
-    fun getValue(key: String): String {
-        return sharedPreferences.getString(key, null) ?:""
-    }
-    fun contains(key: String): Boolean {
-        return sharedPreferences.getString(key, null)!=null
-    }
 }

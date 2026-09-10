@@ -69,8 +69,7 @@ fun HomeScreen(
     val context = LocalContext.current
     val uiData = homeViewModel.uiState.collectAsState().value
     val uiTagData by homeViewModel.markedTagsFlow.collectAsState()
-    val uiStreakData by homeViewModel.uiStreakState.collectAsState()
-
+    val streak by homeViewModel.streak.collectAsState()
     val marked by homeViewModel.marked
     var showRationaleDialogComponent by remember { mutableStateOf(false) }
     var showDialogComponent by remember { mutableStateOf(false) }
@@ -181,24 +180,18 @@ fun HomeScreen(
                     .padding(horizontal = 10.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                when(val result = uiStreakData){
-                   is NetworkResponse.Success -> {
-                       Image(
-                           painter = painterResource(R.drawable.ic_fire_logo),
-                           contentDescription = null,
-                           modifier = Modifier.size(24.dp)
-                       )
-                       Spacer(modifier = Modifier.width(4.dp))
-                       Text(
-                           text = result.data.toString(),
-                           color = themeColors().text,
-                           fontSize = 18.sp,
-                           fontWeight = FontWeight.Bold
-                       )
-                    }
-                    else -> {}
-                }
-
+                Image(
+                    painter = painterResource(R.drawable.ic_fire_logo),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = streak.toString(),
+                    color = themeColors().text,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
         }
